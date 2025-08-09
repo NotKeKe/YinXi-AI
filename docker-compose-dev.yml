@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile-dev
     command: uv run newbot2.py
-    container_name: yinxi-dc-bot
+    container_name: yinxiai-dc-bot
     depends_on:
       - lrcapi
     environment:
@@ -18,7 +18,7 @@ services:
       context: .
       dockerfile: Dockerfile-dev
     command: uv run api_server/server.py
-    container_name: yinxi-dc-api-server
+    container_name: yinxiai-dc-api-server
     volumes:
       - .:/app
     ports:
@@ -26,7 +26,7 @@ services:
     restart: unless-stopped
   mongodb:
     image: mongo:8.0.12
-    container_name: yinxi-dc-mongodb
+    container_name: yinxiai-dc-mongodb
     restart: unless-stopped
     ports:
       - "27020:27017"
@@ -41,7 +41,7 @@ services:
           memory: 1G
   mongo-backup:
     image: alpine
-    container_name: yinxi-dc-mongodb-backup
+    container_name: yinxiai-dc-mongodb-backup
     restart: unless-stopped
     volumes:
       - ./data/mongodb/backup.sh:/backup.sh
@@ -54,7 +54,7 @@ services:
       - MONGO_PASSWORD=${MONGO_PASSWORD}
   lrcapi:
     image: hisatri/lrcapi:latest
-    container_name: yinxi-dc-lrcapi
+    container_name: yinxiai-dc-lrcapi
     expose:
       - "28883"
     
