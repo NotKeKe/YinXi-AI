@@ -42,12 +42,12 @@ def model_select() -> Tuple[AsyncOpenAI, str]:
         model = SUB_EMBED_MODEL
     return client, model
 
-async def search(query: str, collection_name: str, _filter: Filter = None) -> List[Dict[str, Any]]:
+async def search(query: str, collection_name: str, _filter: Filter = None, num: int = 5) -> List[Dict[str, Any]]:
     embedding = (await get_embedding(query))[0]
     points = await qdrant_client.search(
         collection_name=collection_name,
         query_vector=embedding,
-        limit=5,
+        limit=num,
         with_payload=True,
         query_filter=_filter
     )
