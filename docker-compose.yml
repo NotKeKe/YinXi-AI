@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     command: uv run main.py
-    container_name: yinxiai-dc-bot
+    container_name: yinxiai-bot
     depends_on:
       - lrcapi
     environment:
@@ -15,7 +15,7 @@ services:
     restart: unless-stopped
   mongodb:
     image: mongo:8.0.12
-    container_name: yinxiai-dc-mongodb
+    container_name: yinxiai-mongodb
     restart: unless-stopped
     ports:
       - "27021:27017"
@@ -30,7 +30,7 @@ services:
           memory: 1G
   mongo-backup:
     image: alpine
-    container_name: yinxiai-dc-mongodb-backup
+    container_name: yinxiai-mongodb-backup
     restart: unless-stopped
     volumes:
       - ./data/mongodb/backup.sh:/backup.sh
@@ -43,12 +43,12 @@ services:
       - MONGO_PASSWORD=${MONGO_PASSWORD}
   lrcapi:
     image: hisatri/lrcapi:latest
-    container_name: yinxiai-dc-lrcapi
+    container_name: yinxiai-lrcapi
     expose:
       - "28883"
   ollama:
     image: ollama/ollama:latest
-    container_name: yinxiai-dc-ollama
+    container_name: yinxiai-ollama
     restart: unless-stopped
     ports:
       - "11434:11434"   # Ollama 預設 API 埠口
@@ -59,7 +59,7 @@ services:
       - OLLAMA_KEEP_ALIVE=60
   redis:
     image: redis:latest
-    container_name: yinxiai-dc-redis
+    container_name: yinxiai-redis
     restart: unless-stopped
     ports:
       - "6380:6379"
@@ -72,14 +72,14 @@ services:
           memory: 1G
   qdrant:  
     image: qdrant/qdrant:latest  
-    container_name: yinxiai-dc-qdrant  
+    container_name: yinxiai-qdrant  
     restart: unless-stopped  
     ports:  
       - "6333:6333"  
       - "6334:6334"  
     volumes:  
       - ./data/qdrant/storage:/qdrant/storage  
-      - ./data/qdrant/snapshots:/qdrant/snapshots  
+      - ./data/qdrant/snapshots:/qdrant/snapshots
     
 volumes:
   yinxiai-mongodb:
