@@ -33,6 +33,11 @@ class AsyncClient:
         api_key=base_url_options['lmstudio']['api_key']
     )
 
+    self_ollama = AsyncOpenAI(
+        base_url=base_url_options['self_ollama']['base_url'],
+        api_key=base_url_options['self_ollama']['api_key']
+    )
+
 class SyncClient:
     openrouter = OpenAI(
         base_url=base_url_options['openrouter']['base_url'],

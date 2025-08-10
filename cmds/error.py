@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 from core.classes import Cog_Extension
-from core.translator import locale_str
 import os
 import traceback, logging
 

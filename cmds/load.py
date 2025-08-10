@@ -215,6 +215,10 @@ class Load(Cog_Extension):
         await msg.delete()
         await ctx.send('已刪除訊息\nMessage ID: `{}`\nMessage Content: ```{}```\nMessage Author: `{}`'.format(msgID, content, name))
 
+    @commands.command(name='ping')
+    async def _ping(self, ctx):
+        await ctx.send('pong')
+
 
 
 async def setup(bot):

@@ -14,6 +14,7 @@ import base64
 import aiohttp
 from urllib.parse import quote_plus
 from motor.motor_asyncio import AsyncIOMotorClient
+from qdrant_client import AsyncQdrantClient
 
 import os
 from dotenv import load_dotenv
@@ -45,6 +46,8 @@ GENIUS_ACCESS_TOKEN = os.getenv('GENIUS_ACCESS_TOKEN')
 # mongo db
 MONGO_USER = quote_plus(os.getenv('MONGO_USER'))
 MONGO_PASSWORD = quote_plus(os.getenv('MONGO_PASSWORD'))
+
+
 
 def read_json(path: str) -> Optional[Any]:
     """將path讀取成物件並回傳"""
@@ -78,6 +81,29 @@ def write_json(obj, path: str):
         print(f"其他錯誤: {traceback.format_exc()}")
         return
 
+settings = read_json('setting.json')
+if not settings: print('Please add `setting.json` to current path.')
+
+try: admins: List[int] = read_json('./cmds/data.json/admins.json')['admins']
+except TypeError: print('Cannot fetch ./cmds/data.json/admins.json')
+except: traceback.print_exc()
+
+if settings:
+    testing_guildID: int = settings['testing_guildID']
+    DEVICE_IP: str = settings.get('DEVICE_IP')
+    OLLAMA_IP: str = settings.get('OLLAMA_IP')
+    BASE_OLLAMA_URL: str = f'http://{OLLAMA_IP}:11434'
+else:
+    testing_guildID: int = 123456789
+    DEVICE_IP: str = '127.0.0.1'
+    OLLAMA_IP: str = '127.0.0.1'
+    BASE_OLLAMA_URL: str = f'http://{OLLAMA_IP}:11434'
+
+MONGO_URL = f"mongodb://{MONGO_USER}:{MONGO_PASSWORD}@{DEVICE_IP}:27021/"
+# print(MONGO_URL)
+
+mongo_db_client = AsyncIOMotorClient(MONGO_URL)
+qdrant_client = AsyncQdrantClient("http://qdrant:6333")
 
 def create_basic_embed(title = None, description = None, color = discord.Color.blue(), 功能:str = None, time=True):
     '''
@@ -141,15 +167,12 @@ def translate(text, source:str='auto', target:str='zh-TW') -> str:
 async def async_translate(text: str, source:str='auto', target:str='zh-TW'):
     return await asyncio.to_thread(translate, text, source, target)
 
-def get_attachment(msg: discord.Message, to_base64:bool=False) -> list:
+def get_attachment(msg: discord.Message) -> list:
     a = [
         attachment.url
         for attachment in msg.attachments
         if attachment.content_type and attachment.content_type.startswith('image/')
     ]
-    if to_base64:
-        from cmds.AIsTwo.utils import image_url_to_base64
-        a = [image_url_to_base64(u) for u in a]
     return a
 
 def math_round(x: float, ndigits: int = 0) -> float:
@@ -177,29 +200,6 @@ def to_abspath(path: str) -> str:
 
 def is_KeJC(userID: int):
     return str(userID) == KeJCID
-
-settings = read_json('setting.json')
-if not settings: print('Please add `setting.json` to current path.')
-
-try: admins: List[int] = read_json('./cmds/data.json/admins.json')['admins']
-except TypeError: print('Cannot fetch ./cmds/data.json/admins.json')
-except: traceback.print_exc()
-
-if settings:
-    testing_guildID: int = settings['testing_guildID']
-    DEVICE_IP: str = settings.get('DEVICE_IP')
-    OLLAMA_IP: str = settings.get('OLLAMA_IP')
-    BASE_OLLAMA_URL: str = f'http://{OLLAMA_IP}:11434'
-else:
-    testing_guildID: int = 123456789
-    DEVICE_IP: str = '127.0.0.1'
-    OLLAMA_IP: str = '127.0.0.1'
-    BASE_OLLAMA_URL: str = f'http://{OLLAMA_IP}:11434'
-
-MONGO_URL = f"mongodb://{MONGO_USER}:{MONGO_PASSWORD}@{DEVICE_IP}:27020/"
-# print(MONGO_URL)
-
-mongo_db_client = AsyncIOMotorClient(MONGO_URL)
 
 def is_testing_guild():
     '''A guild checking function for commands.command'''

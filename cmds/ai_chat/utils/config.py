@@ -1,7 +1,7 @@
 import os
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from core.functions import BASE_OLLAMA_URL, OLLAMA_IP, mongo_db_client
+from core.functions import BASE_OLLAMA_URL, OLLAMA_IP, mongo_db_client, DEVICE_IP
 
 openrouter_KEY = os.getenv('openrouter_KEY')
 zhipu_KEY = os.getenv('zhipuAI_KEY')
@@ -33,6 +33,10 @@ base_url_options = {
     'lmstudio': {
         'base_url': f'http://{OLLAMA_IP}:1239/v1',
         'api_key': 'hi'
+    },
+    'self_ollama': {
+        'base_url': f'http://{DEVICE_IP}:11434/v1',
+        'api_key': 'ollama'
     }
 }
 

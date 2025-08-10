@@ -4,48 +4,36 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: uv run newbot2.py
-    container_name: yinxi-dc-bot
+    command: uv run main.py
+    container_name: yinxiai-dc-bot
     depends_on:
       - lrcapi
     environment:
       - LRCAPI_URL=http://lrcapi:28883
     volumes:
-      - ./cmds/data.json:/app/cmds/data.json
-      - ./data:/app/data
-      - ./logs/bot.log:/app/logs/bot.log
-      - ./setting.json:/app/setting.json
-    restart: unless-stopped
-  api_server:
-    build: 
-      context: .
-      dockerfile: Dockerfile
-    command: uv run api_server/server.py
-    container_name: yinxi-dc-api-server
-    ports:
-      - "3000:3000"
+      - .:/app
     restart: unless-stopped
   mongodb:
     image: mongo:8.0.12
-    container_name: yinxi-dc-mongodb
+    container_name: yinxiai-dc-mongodb
     restart: unless-stopped
     ports:
-      - "27020:27017"
+      - "27021:27017"
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
     volumes:
-      - mongodb:/data/db
+      - yinxiai-mongodb:/data/db
     deploy:
       resources:
         limits:
           memory: 1G
   mongo-backup:
     image: alpine
-    container_name: yinxi-dc-mongodb-backup
+    container_name: yinxiai-dc-mongodb-backup
     restart: unless-stopped
     volumes:
-      - ./backup.sh:/backup.sh
+      - ./data/mongodb/backup.sh:/backup.sh
       - ./data/mongodb:/backup
     depends_on:
       - mongodb
@@ -55,10 +43,45 @@ services:
       - MONGO_PASSWORD=${MONGO_PASSWORD}
   lrcapi:
     image: hisatri/lrcapi:latest
-    container_name: yinxi-dc-lrcapi
+    container_name: yinxiai-dc-lrcapi
     expose:
       - "28883"
+  ollama:
+    image: ollama/ollama:latest
+    container_name: yinxiai-dc-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"   # Ollama 預設 API 埠口
+    volumes:
+      - yinxiai-ollama_data:/root/.ollama  # 儲存模型與設定
+    environment:
+      - OLLAMA_ORIGINS=*
+      - OLLAMA_KEEP_ALIVE=60
+  redis:
+    image: redis:latest
+    container_name: yinxiai-dc-redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - yinxiai-redis_data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+  qdrant:  
+    image: qdrant/qdrant:latest  
+    container_name: yinxiai-dc-qdrant  
+    restart: unless-stopped  
+    ports:  
+      - "6333:6333"  
+      - "6334:6334"  
+    volumes:  
+      - ./data/qdrant/storage:/qdrant/storage  
+      - ./data/qdrant/snapshots:/qdrant/snapshots  
     
 volumes:
-  mongodb:
-    driver: local
+  yinxiai-mongodb:
+  yinxiai-redis_data:
+  yinxiai-ollama_data:

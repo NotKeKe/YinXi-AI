@@ -10,17 +10,8 @@ import typing
 import traceback
 
 from core.classes import Cog_Extension, bot
-from core.functions import create_basic_embed
+from core.functions import create_basic_embed, embed_link
 from core.translator import locale_str, load_translated
-
-# get env
-load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN')
-KeJC_ID = int(os.getenv('KeJC_ID'))
-embed_link = os.getenv('embed_default_link')
-
-with open('setting.json', "r") as f:
-    jdata = json.load(f)
 
 class CommandSelectView(discord.ui.View):
     def __init__(self, bot: commands.Bot, cogname: str):

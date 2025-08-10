@@ -23,6 +23,8 @@ dependencies = [
     "playwright>=1.54.0",
     "python-dotenv==1.1.0",
     "python-multipart==0.0.20",
+    "qdrant-client>=1.15.1",
+    "redis[hiredis]>=6.4.0",
     "Requests==2.32.3",
     "tenacity==9.0.0",
     "zai-sdk>=0.0.2",
