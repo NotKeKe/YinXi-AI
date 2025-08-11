@@ -1,4 +1,5 @@
 from typing import List, Tuple
+from motor.motor_asyncio import AsyncIOMotorCollection
 
 from .config import mongo_db_client
 
@@ -23,13 +24,17 @@ class DefaultSystemPrompts:
     class Utils:
         summary = ''
 
-async def get_prompts() -> List[Tuple[str, str]]:
+async def get_prompts(collection: AsyncIOMotorCollection) -> List[Tuple[str, str]]:
     '''
     Return name, prompt
     '''
-    collection = mongo_db_client[KEY]['default']
 
     return [(item.get('name'), item.get('prompt')) async for item in collection.find() if item.get('name') and item.get('prompt')]
+
+async def from_name_to_system_prompt(userID: int | str, name: str) -> str:
+    collection = mongo_db_client[KEY][str(userID)]
+
+    return (await collection.find_one({'name': name.strip()})).get('prompt')
 
 async def upload_custom_system_prompt(userID: int | str, name: str, prompt: str):
     collection = mongo_db_client[KEY][str(userID)]

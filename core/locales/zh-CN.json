@@ -77,7 +77,11 @@
         "bot_stats": "机器人统计数据",
         "random_uuid": "随机uuid生成器",
         "image_to_base64": "图片转base64",
-        "show_keep": "列出所有记事"
+        "show_keep": "列出所有记事",
+        "system_prompt_description": "系统提示词描述",
+        "delete_custom_system_prompt": "删除自定义系统提示词",
+        "upload_custom_system_prompt": "上传自定义系统提示词",
+        "show_custom_system_prompt": "显示自定义系统提示词"
     },
     "description": {
         "translate": "翻译一些文字",
@@ -157,7 +161,11 @@
         "bot_stats": "显示 Bot 的统计数据，包括但不限于启动时间、启动次数、指令呼叫次数...",
         "random_uuid": "生成一个随机的 UUID",
         "image_to_base64": "将图片转为 base64",
-        "show_keep": "列出你使用 /记事 所创建的所有记事"
+        "show_keep": "列出你使用 /记事 所创建的所有记事",
+        "system_prompt_description": "对于所有 音汐 AI 预设的系统提示词，做一个简单的描述",
+        "delete_custom_system_prompt": "删除自定义的系统提示词",
+        "upload_custom_system_prompt": "上传自定义的系统提示词",
+        "show_custom_system_prompt": "显示你所有自定义的系统提示词"
     },
     "params_desc": {
         "keep_time": "输入你要音汐什么时候提醒，会用AI判断时间",
@@ -235,7 +243,11 @@
         "set_ai_channel_system_prompt": "要设定的系统提示词 (可选)",
         "change_ai_channel_model_model": "要更换成的 AI 模型",
         "change_ai_channel_system_prompt_system_prompt": "要更换成的系统提示词",
-        "image_to_base64": "将图片转为 base64"
+        "image_to_base64": "将图片转为 base64",
+        "upload_custom_system_prompt_name": "传入你希望这个提示词的标题是什么，方便以后辨识",
+        "upload_custom_system_prompt_text": "如果你的提示词很短，可以直接用这个贴上 (跟 file 二选一)",
+        "upload_custom_system_prompt_file": "在此上传提示词档案 (与 text 二选一，并且只支援 txt 与 md 格式)",
+        "delete_custom_system_prompt_name": "选择你要删除提示词的名称 (当初在 upload 的时候有输入过他的 name)"
     },
     "components": {
         "yin_xi": "音汐",
@@ -725,6 +737,18 @@
         }],
         "send_show_keep_sendAt_text": "时间",
         "send_show_keep_event_text": "事件",
-        "send_show_keep_channel_text": "在"
+        "send_show_keep_channel_text": "在",
+        "embed_system_prompt_description": [{
+            "author": "提示词说明",
+            "description": "### base_yinxi:\n> 音汐的基础提示词，如果没有特别指定的话会使用这个窝\n### chat_human:\n> 音汐专门用来当作与人聊天的提示词\n### story_teller:\n> 一个说书人，可以说故事给你听\n### emoji_translator:\n> 一个只会用 emoji 回应你的提示词\n### idea_clarifier:\n> 能够引导你进行思考，突破你的知识盲区"
+        }],
+        "send_upload_custom_system_prompt_select_one_upload": "你只能选择 text 或者是 file 上传",
+        "send_upload_custom_system_prompt_name_exist": "你输入的 name 已经跟你以前用过的 name 重复了欸，要不要换个 name 试试看?",
+        "send_upload_custom_system_prompt_file_type_error": "音汐 AI 现在只接收 txt(纯文字档) 和 md(markdown) 档喔",
+        "embed_upload_custom_system_prompt": [{
+            "author": "上传自定义系统提示词"
+        }],
+        "send_delete_custom_system_prompt_name_not_exist": "你输入的 name 不在我记录的系统提示词内欸，要不要换个 name 试试看?",
+        "send_delete_custom_system_prompt_success": "成功删除 `{name}` !"
     }
 }

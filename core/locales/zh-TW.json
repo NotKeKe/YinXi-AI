@@ -77,7 +77,11 @@
         "bot_stats": "機器人統計數據",
         "random_uuid": "隨機uuid生成器",
         "image_to_base64": "圖片轉base64",
-        "show_keep": "列出所有記事"
+        "show_keep": "列出所有記事",
+        "system_prompt_description": "系統提示詞描述",
+        "delete_custom_system_prompt": "刪除自訂義系統提示詞",
+        "upload_custom_system_prompt": "上傳自訂義系統提示詞",
+        "show_custom_system_prompt": "顯示自訂義系統提示詞"
     },
     "description": {
         "translate": "翻譯一些文字",
@@ -157,7 +161,11 @@
         "bot_stats": "顯示 Bot 的統計數據，包括但不限於啟動時間、啟動次數、指令呼叫次數...",
         "random_uuid": "生成一個隨機的 UUID",
         "image_to_base64": "將圖片轉為 base64",
-        "show_keep": "列出你使用 /記事 所創建的所有記事"
+        "show_keep": "列出你使用 /記事 所創建的所有記事",
+        "system_prompt_description": "對於所有 音汐 AI 預設的系統提示詞，做一個簡單的描述",
+        "delete_custom_system_prompt": "刪除自訂義的系統提示詞",
+        "upload_custom_system_prompt": "上傳自訂義的系統提示詞",
+        "show_custom_system_prompt": "顯示你所有自訂義的系統提示詞"
     },
     "params_desc": {
         "keep_time": "輸入你要音汐什麼時候提醒，會用AI判斷時間",
@@ -234,7 +242,11 @@
         "set_ai_channel_model": "要設定的 AI 模型，預設為 qwen-3-32b",
         "set_ai_channel_system_prompt": "要設定的系統提示詞 (可選)",
         "change_ai_channel_model_model": "要更換成的 AI 模型",
-        "change_ai_channel_system_prompt_system_prompt": "要更換成的系統提示詞"
+        "change_ai_channel_system_prompt_system_prompt": "要更換成的系統提示詞",
+        "upload_custom_system_prompt_name": "傳入你希望這個提示詞的標題是什麼，方便以後辨識",
+        "upload_custom_system_prompt_text": "如果你的提示詞很短，可以直接用這個貼上 (跟 file 二選一)",
+        "upload_custom_system_prompt_file": "在此上傳提示詞檔案 (與 text 二選一，並且只支援 txt 與 md 格式)",
+        "delete_custom_system_prompt_name": "選擇你要刪除提示詞的名稱 (當初在 upload 的時候有輸入過他的 name)"
     },
     "components": {
         "yin_xi": "音汐",
@@ -728,6 +740,14 @@
         "embed_system_prompt_description": [{
             "author": "提示詞說明",
             "description": "### base_yinxi:\n> 音汐的基礎提示詞，如果沒有特別指定的話會使用這個窩\n### chat_human:\n> 音汐專門用來當作與人聊天的提示詞\n### story_teller:\n> 一個說書人，可以說故事給你聽\n### emoji_translator:\n> 一個只會用 emoji 回應你的提示詞\n### idea_clarifier:\n> 能夠引導你進行思考，突破你的知識盲區"
-        }]
+        }],
+        "send_upload_custom_system_prompt_select_one_upload": "你只能選擇 text 或者是 file 上傳",
+        "send_upload_custom_system_prompt_name_exist": "你輸入的 name 已經跟你以前用過的 name 重複了欸，要不要換個 name 試試看?",
+        "send_upload_custom_system_prompt_file_type_error": "音汐 AI 現在只接收 txt(純紋字檔) 和 md(markdown) 檔喔",
+        "embed_upload_custom_system_prompt": [{
+            "author": "上傳自定義系統提示詞"
+        }],
+        "send_delete_custom_system_prompt_name_not_exist": "你輸入的 name 不在我紀錄的系統提示詞內欸，要不要換個 name 試試看?",
+        "send_delete_custom_system_prompt_success": "成功刪除 `{name}` !"
     }
 }

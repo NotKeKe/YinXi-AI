@@ -13,7 +13,9 @@ from core.translator import locale_str, load_translated
 from cmds.ai_chat.chat.chat import Chat
 from cmds.ai_chat.chat import gener_title
 from cmds.ai_chat.tools.map import image_generate, video_generate
-from cmds.ai_chat.utils import model, chat_history_autocomplete, model_autocomplete, add_history_button, add_think_button
+from cmds.ai_chat.utils import model, add_history_button, add_think_button
+from cmds.ai_chat.utils.auto_complete import chat_history_autocomplete, model_autocomplete, system_prompt_autocomplete
+from cmds.ai_chat.utils.prompt import from_name_to_system_prompt
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +44,8 @@ class AIChat(Cog_Extension):
     @app_commands.describe(is_vision_model = locale_str('chat_is_vision_model'))
     @app_commands.autocomplete(
         model = model_autocomplete,
-        history = chat_history_autocomplete
+        history = chat_history_autocomplete,
+        system_prompt = system_prompt_autocomplete
     )
     async def chat(
             self, 
@@ -50,6 +53,7 @@ class AIChat(Cog_Extension):
             prompt: str, 
             model: str = 'cerebras:gpt-oss-120b', 
             history: str = None, 
+            system_prompt: str = None,
             enable_tools: bool = True, 
             image: Optional[discord.Attachment] = None, 
             text_file: Optional[discord.Attachment] = None,
@@ -66,12 +70,15 @@ class AIChat(Cog_Extension):
                 })
                 if not result: return await ctx.send(f'Unknow error, cannot found any title called `{history}`')
                 ls_history = result.get('messages')
+
+            system_prompt = from_name_to_system_prompt(ctx.author.id, system_prompt)
                 
             await ctx.defer()
 
             client = Chat(
                 ctx=ctx,
-                model=model
+                model=model,
+                system_prompt=system_prompt
             )
 
             think, result, complete_history = await client.chat(

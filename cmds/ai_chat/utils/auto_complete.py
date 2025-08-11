@@ -4,7 +4,10 @@ from typing import List
 
 from core.functions import UnixToReadable
 from .config import db_client
-from .prompt import get_prompts
+from .prompt import (
+    get_prompts,
+    KEY as SYSTEM_PROMPT_KEY
+)
 
 async def chat_history_autocomplete(interaction: Interaction, current: str) -> List[Choice[str]]:
     db = db_client['aichat_chat_history']
@@ -40,7 +43,8 @@ async def model_autocomplete(interaction: Interaction, current: str) -> List[Cho
     return [Choice(name=f"[{provider}] {model}", value=f"{provider}:{model}") for provider, model in models[:25]]
 
 async def default_system_prompt(inter: Interaction, current: str) -> List[Choice[str]]:
-    prompts = await get_prompts()
+    collection = db_client[SYSTEM_PROMPT_KEY]['default']
+    prompts = await get_prompts(collection)
 
     if current:
         prompts = [
@@ -51,13 +55,13 @@ async def default_system_prompt(inter: Interaction, current: str) -> List[Choice
             current.lower().strip() in item[1].lower().strip()
         ]
 
-    return [Choice(name=f'[{item[0]}] {item[1][:10]}...', value=item[1]) for item in prompts[:25]]
+    return [Choice(name=f'[{item[0]}] {item[1][:10]}...', value=item[0]) for item in prompts[:25]]
 
 async def custom_user_system_prompt_for_del(inter: Interaction, curr: str) -> List[Choice[str]]:
-    db = db_client['system_prompt']
+    db = db_client[SYSTEM_PROMPT_KEY]
     collection = db[str(inter.user.id)]
 
-    data = [(item.get('name'), item.get('prompt')) async for item in collection.find() if item.get('name') and item.get('prompt')]
+    data = await get_prompts(collection)
 
     if curr:
         data = [ 
@@ -70,11 +74,13 @@ async def custom_user_system_prompt_for_del(inter: Interaction, curr: str) -> Li
 
     return [Choice(name=f'[{item[0]}] {item[1][:10]}...', value=item[0]) for item in data[:25]]
 
-async def custom_user_system_prompt_for_use(inter: Interaction, curr: str) -> List[Choice[str]]:
-    db = db_client['system_prompt']
+async def system_prompt_autocomplete(inter: Interaction, curr: str) -> List[Choice[str]]:
+    db = db_client[SYSTEM_PROMPT_KEY]
     collection = db[str(inter.user.id)]
+    data = await get_prompts(collection)
 
-    data = [(item.get('name'), item.get('prompt')) async for item in collection.find() if item.get('name') and item.get('prompt')]
+    collection = db['default']
+    data += await get_prompts(collection)
 
     if curr:
         data = [ 
@@ -85,4 +91,4 @@ async def custom_user_system_prompt_for_use(inter: Interaction, curr: str) -> Li
             curr.lower().strip() in item[1].lower().strip()
         ] 
 
-    return [Choice(name=f'[{item[0]}] {item[1][:10]}...', value=item[1]) for item in data[:25]]
+    return [Choice(name=f'[{item[0]}] {item[1][:10]}...', value=item[0]) for item in data[:25]]

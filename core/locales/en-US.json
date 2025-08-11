@@ -77,7 +77,11 @@
         "bot_stats": "bot_stats",
         "random_uuid": "random_uuid_generator",
         "image_to_base64": "image_to_base64",
-        "show_keep": "show_reminder"
+        "show_keep": "show_reminder",
+        "system_prompt_description": "system_prompt_description",
+        "delete_custom_system_prompt": "delete_custom_system_prompt",
+        "upload_custom_system_prompt": "upload_custom_system_prompt",
+        "show_custom_system_prompt": "show_custom_system_prompt"
     },
     "description": {
         "translate": "Translate some text",
@@ -157,7 +161,11 @@
         "bot_stats": "Show bot statistics, including but not limited to uptime, number of starts, command calls...",
         "random_uuid": "Generate a random UUID",
         "image_to_base64": "Convert image to base64",
-        "show_keep": "List all notes you've created using /remind"
+        "show_keep": "List all notes you've created using /remind",
+        "system_prompt_description": "A simple description of all YinXi AI default system prompts",
+        "delete_custom_system_prompt": "Delete a custom system prompt",
+        "upload_custom_system_prompt": "Upload a custom system prompt",
+        "show_custom_system_prompt": "Show all your custom system prompts"
     },
     "params_desc": {
         "keep_time": "Enter when you want YinXi to remind you, AI will be used to determine the time",
@@ -234,7 +242,11 @@
         "set_ai_channel_model": "AI model to set, default is qwen-3-32b",
         "set_ai_channel_system_prompt": "System prompt to set (optional)",
         "change_ai_channel_model_model": "AI model to change to",
-        "change_ai_channel_system_prompt_system_prompt": "System prompt to change to"
+        "change_ai_channel_system_prompt_system_prompt": "System prompt to change to",
+        "upload_custom_system_prompt_name": "Enter the title you want for this prompt for easy identification later",
+        "upload_custom_system_prompt_text": "If your prompt is short, you can paste it directly here (choose one between this and file)",
+        "upload_custom_system_prompt_file": "Upload the prompt file here (choose one between this and text, and only txt and md are supported)",
+        "delete_custom_system_prompt_name": "Select the name of the prompt you want to delete (the name you entered when you uploaded it)"
     },
     "components": {
         "yin_xi": "YinXi",
@@ -724,6 +736,18 @@
         }],
         "send_show_keep_sendAt_text": "Time",
         "send_show_keep_event_text": "Event",
-        "send_show_keep_channel_text": "At"
+        "send_show_keep_channel_text": "At",
+        "embed_system_prompt_description": [{
+            "author": "Prompt Description",
+            "description": "### base_yinxi:\n> YinXi's basic prompt, this will be used if not specified\n### chat_human:\n> A prompt specially used by YinXi for chatting with people\n### story_teller:\n> A storyteller who can tell you stories\n### emoji_translator:\n> A prompt that only responds to you with emojis\n### idea_clarifier:\n> Can guide you to think and break through your knowledge blind spots"
+        }],
+        "send_upload_custom_system_prompt_select_one_upload": "You can only choose to upload via text or file",
+        "send_upload_custom_system_prompt_name_exist": "The name you entered is already duplicated with a name you have used before, would you like to try another name?",
+        "send_upload_custom_system_prompt_file_type_error": "YinXi AI now only accepts txt (plain text file) and md (markdown) files",
+        "embed_upload_custom_system_prompt": [{
+            "author": "Upload Custom System Prompt"
+        }],
+        "send_delete_custom_system_prompt_name_not_exist": "The name you entered is not in my recorded system prompts, would you like to try another name?",
+        "send_delete_custom_system_prompt_success": "Successfully deleted `{name}` !"
     }
 }
