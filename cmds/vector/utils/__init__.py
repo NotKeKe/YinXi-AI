@@ -1,1 +1,1 @@
-from .split_str_by_len import split_str_by_len
+from .split_str import semantic_split

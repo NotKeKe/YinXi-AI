@@ -4,7 +4,7 @@ from discord.ext import commands
 from datetime import datetime, timedelta, timezone
 import asyncio
 import functools
-from typing import Optional, Any, List
+from typing import Optional, Any, List, Union
 from deep_translator import GoogleTranslator
 import aiohttp
 import os
@@ -44,12 +44,12 @@ GIPHYKEY = os.getenv('GIPHY_KEY')
 GENIUS_ACCESS_TOKEN = os.getenv('GENIUS_ACCESS_TOKEN')
 
 # mongo db
-MONGO_USER = quote_plus(os.getenv('MONGO_USER'))
-MONGO_PASSWORD = quote_plus(os.getenv('MONGO_PASSWORD'))
+MONGO_USER = quote_plus(str(os.getenv('MONGO_USER')))
+MONGO_PASSWORD = quote_plus(str(os.getenv('MONGO_PASSWORD')))
 
 
 
-def read_json(path: str) -> Optional[Any]:
+def read_json(path: str) -> Union[dict, list, None]:
     """將path讀取成物件並回傳"""
     try:
         if not os.path.exists(path) or os.path.getsize(path) == 0:
@@ -81,7 +81,7 @@ def write_json(obj, path: str):
         print(f"其他錯誤: {traceback.format_exc()}")
         return
 
-settings = read_json('setting.json')
+settings: dict = read_json('setting.json')
 if not settings: print('Please add `setting.json` to current path.')
 
 try: admins: List[int] = read_json('./cmds/data.json/admins.json')['admins']

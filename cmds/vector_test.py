@@ -4,22 +4,23 @@ from discord.ext import commands, tasks
 import aiohttp
 import uuid
 import orjson
-from qdrant_client.models import Filter, MatchValue, FieldCondition
+from qdrant_client.models import Filter, MatchValue, FieldCondition, ScrollResult
 
 from core.classes import Cog_Extension
 from core.functions import testing_guildID, mongo_db_client
 
-from cmds.vector.call import search, upsert
+from cmds.vector.call import search, upsert, delete
 from cmds.vector.utils.config import (
     connection as vector_connection,
-    CollectionName
+    CollectionName,
+    qdrant_client
 )
-from cmds.vector.utils import check_alive, split_str_by_len
+from cmds.vector.utils import check_alive, semantic_split
+from cmds.vector.utils.autocomplete import *
 
 class VectorTest(Cog_Extension):
     def __init__(self, bot):
         super().__init__(bot)
-        self.session: aiohttp.ClientSession | None = None
 
     async def cog_load(self):
         print(f'已載入「{__name__}」')
@@ -59,7 +60,7 @@ class VectorTest(Cog_Extension):
         status = await upsert(upsert_item, CollectionName.databases)
         await inter.followup.send(f'插入 {status}')
 
-    @app_commands.command(name='向量加入知識庫')
+    @app_commands.command(name='向量自定義知識庫加入')
     @app_commands.guilds(discord.Object(id=testing_guildID))
     async def vector_test_add_file(self, inter: Interaction, file: discord.Attachment, title: str):
         await inter.response.defer(ephemeral=True, thinking=True)
@@ -69,34 +70,76 @@ class VectorTest(Cog_Extension):
         # uuid
         u = str(uuid.uuid4())
 
+        # vector
+        texts = semantic_split((await file.read()).decode('utf-8'))
+        upsert_item = [{'userID': inter.user.id, 'text': t, 'uuid': u} for t in texts]
+        success = await upsert(upsert_item, CollectionName.user_custom_database)
+
         # Mongo
         db = mongo_db_client['user_custom_data']
         collection = db[str(inter.user.id)]
-        await collection.insert_one({'uuid': u, 'title': title})
+        await collection.insert_one({'uuid': u, 'title': title, 'length': len(upsert_item)})
 
-        # vector
-        texts = split_str_by_len((await file.read()).decode('utf-8'))
-        upsert_item = [{'title': title, 'userID': inter.user.id, 'text': t, 'uuid': u} for t in texts]
-        success = await upsert(upsert_item, CollectionName.user_custom_database)
-
-        if not success: 
-            await collection.delete_one({'uuid': u})
-            return await inter.followup.send('插入失敗')
         await inter.followup.send('插入成功')
 
     @app_commands.command(name='向量自定義知識庫查詢')
     @app_commands.guilds(discord.Object(id=testing_guildID))
-    async def vector_test_search_custom(self, inter: Interaction, query: str):
+    @app_commands.autocomplete(database=custom_database_titles)
+    async def vector_test_search_custom(self, inter: Interaction, query: str, database: str):
         await inter.response.defer(ephemeral=True, thinking=True)
 
-        result = await search(query, CollectionName.user_custom_database, Filter(must=[FieldCondition(key='userID', match=MatchValue(value=inter.user.id))]))
+        result = await search(
+            query, 
+            CollectionName.user_custom_database, 
+            Filter(must=[
+                FieldCondition(key='userID', match=MatchValue(value=inter.user.id)),
+                FieldCondition(key='title', match=MatchValue(value=database))
+            ]
+        ))
         if not result: return await inter.followup.send('No result')
 
         await inter.followup.send(orjson.dumps(result, option=orjson.OPT_INDENT_2).decode('utf-8'))
 
+    @app_commands.command(name='向量自定義知識庫改名')
+    @app_commands.guilds(discord.Object(id=testing_guildID))
+    @app_commands.autocomplete(original_database_name=custom_database_titles)
+    async def vector_test_rename_custom(self, inter: Interaction, original_database_name: str, new_name: str):
+        await inter.response.defer(ephemeral=True, thinking=True)
+
+        # Mongo
+        mongo_collection = mongo_db_client['user_custom_data'][str(inter.user.id)]
+        await mongo_collection.find_one_and_update({'title': original_database_name}, {'$set': {'title': new_name}})
+        
+        await inter.followup.send('success')
+
+    @app_commands.command(name='向量自定義知識庫刪除')
+    @app_commands.guilds(discord.Object(id=testing_guildID))
+    @app_commands.autocomplete(database=custom_database_titles)
+    async def vector_test_delete_custom(self, inter: Interaction, database: str):
+        await inter.response.defer(ephemeral=True, thinking=True)
+
+        # Mongo
+        mongo_collection = mongo_db_client['user_custom_data'][str(inter.user.id)]
+        doc = await mongo_collection.find_one_and_delete({'title': database})
+
+        # Qdrant
+        condition = Filter(
+            must=[
+                FieldCondition(
+                    key='userID', match=MatchValue(value=inter.user.id)
+                ),
+                FieldCondition(
+                    key='uuid', match=MatchValue(value=doc['uuid'])
+                )
+            ]
+        )
+        await delete(CollectionName.user_custom_database, condition)
+        
+        await inter.followup.send('success')
+
     @tasks.loop(seconds=60)
     async def ollama_check_alive(self):
-        await check_alive.connection_check(self.session)
+        await check_alive.connection_check()
 
     @ollama_check_alive.before_loop
     async def before_test_loop(self):
