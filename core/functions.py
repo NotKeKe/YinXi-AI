@@ -25,7 +25,7 @@ load_dotenv()
 yinxi_base_url = os.getenv('yinxi_base_url') # 這是我網域的基礎連結 https://yinxi.wales.com.tw
 def get_embed_link() -> str:
     # 取得自己的圖片，並使用連結獲得
-    path = f'./image/self.png'
+    path = f'./image/self_ai.png'
     absolute_path = os.path.abspath(path)
 
     base_url = f'{yinxi_base_url}/api/image/?path='

@@ -57,6 +57,10 @@ services:
     environment:
       - OLLAMA_ORIGINS=*
       - OLLAMA_KEEP_ALIVE=60
+    deploy:
+      resources:
+        limits:
+          memory: 2G
   redis:
     image: redis:latest
     container_name: yinxiai-redis
