@@ -9,11 +9,12 @@ from qdrant_client.models import Filter, MatchValue, FieldCondition, ScrollResul
 from core.classes import Cog_Extension
 from core.functions import testing_guildID, mongo_db_client
 
+from core.mongodb_clients import MongoDB_DB
+
 from cmds.vector.call import search, upsert, delete
 from cmds.vector.utils.config import (
     connection as vector_connection,
-    CollectionName,
-    qdrant_client
+    CollectionName
 )
 from cmds.vector.utils import check_alive, semantic_split
 from cmds.vector.utils.autocomplete import *
@@ -76,7 +77,7 @@ class VectorTest(Cog_Extension):
         success = await upsert(upsert_item, CollectionName.user_custom_database)
 
         # Mongo
-        db = mongo_db_client['user_custom_data']
+        db = MongoDB_DB.user_custom_data
         collection = db[str(inter.user.id)]
         await collection.insert_one({'uuid': u, 'title': title, 'length': len(upsert_item)})
 
@@ -107,7 +108,7 @@ class VectorTest(Cog_Extension):
         await inter.response.defer(ephemeral=True, thinking=True)
 
         # Mongo
-        mongo_collection = mongo_db_client['user_custom_data'][str(inter.user.id)]
+        mongo_collection = MongoDB_DB.user_custom_data[str(inter.user.id)]
         await mongo_collection.find_one_and_update({'title': original_database_name}, {'$set': {'title': new_name}})
         
         await inter.followup.send('success')
@@ -119,7 +120,7 @@ class VectorTest(Cog_Extension):
         await inter.response.defer(ephemeral=True, thinking=True)
 
         # Mongo
-        mongo_collection = mongo_db_client['user_custom_data'][str(inter.user.id)]
+        mongo_collection = MongoDB_DB.user_custom_data[str(inter.user.id)]
         doc = await mongo_collection.find_one_and_delete({'title': database})
 
         # Qdrant

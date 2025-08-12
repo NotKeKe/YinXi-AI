@@ -2,17 +2,13 @@ from qdrant_client import models
 import logging
 
 from core.functions import settings, qdrant_client
+from core.qdrant import QdrantCollectionName as CollectionName
 
 logger = logging.getLogger(__name__)
 
 MAIN_EMBED_MODEL = settings.get('MAIN_EMBED_MODEL')
 SUB_EMBED_MODEL = settings.get('SUB_EMBED_MODEL')
 
-class CollectionName:
-    databases = "databases"
-    user_history = "user_history"
-    user_preference = "user_preference"
-    user_custom_database = "user_custom_database"
 
 async def connection():
     '''

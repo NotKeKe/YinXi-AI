@@ -255,7 +255,8 @@ class Chat:
                 image: discord.Attachment = None,
                 text_file: discord.Attachment = None,
                 custom_system_prompt: str = None,
-                tool_choice: str = None
+                tool_choice: str = None,
+                vector_database: list[str] = None
             ) -> Tuple[str, str, list]:
         if model:
             await self.re_model(model)
@@ -272,7 +273,10 @@ class Chat:
         extra_user_info = self.get_extra_user_info()
         system_prompt = self.system_prompt + extra_user_info
 
-        system = to_system_message(custom_system_prompt if custom_system_prompt else system_prompt)
+        system = to_system_message(
+            (custom_system_prompt if custom_system_prompt else system_prompt) + 
+            (f'\n\n## These are vector database provided by user:\n{vector_database}' if vector_database else '')
+        )
 
         history += await self.process_user_prompt(prompt, image, text_file, url)
 

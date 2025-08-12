@@ -42,6 +42,14 @@ async def model_autocomplete(interaction: Interaction, current: str) -> List[Cho
     
     return [Choice(name=f"[{provider}] {model}", value=f"{provider}:{model}") for provider, model in models[:25]]
 
+def process_three_dot(name: str, prompt: str) -> str:
+    size = len(name + prompt)
+
+    if size <= 100:
+        return f'[{name}] {prompt}'
+    else: # 最大長度 - ... - `[] ` - len(name)
+        return f'[{name}] {prompt[:(100-3-(3+len(name)))]}...'
+
 async def default_system_prompt(inter: Interaction, current: str) -> List[Choice[str]]:
     collection = db_client[SYSTEM_PROMPT_KEY]['default']
     prompts = await get_prompts(collection)
@@ -55,7 +63,7 @@ async def default_system_prompt(inter: Interaction, current: str) -> List[Choice
             current.lower().strip() in item[1].lower().strip()
         ]
 
-    return [Choice(name=f'[{item[0]}] {item[1][:10]}...', value=item[0]) for item in prompts[:25]]
+    return [Choice(name=process_three_dot(item[0], item[1]), value=item[0]) for item in prompts[:25]]
 
 async def custom_user_system_prompt_for_del(inter: Interaction, curr: str) -> List[Choice[str]]:
     db = db_client[SYSTEM_PROMPT_KEY]
@@ -72,7 +80,7 @@ async def custom_user_system_prompt_for_del(inter: Interaction, curr: str) -> Li
             curr.lower().strip() in item[1].lower().strip()
         ] 
 
-    return [Choice(name=f'[{item[0]}] {item[1][:10]}...', value=item[0]) for item in data[:25]]
+    return [Choice(name=process_three_dot(item[0], item[1]), value=item[0]) for item in data[:25]]
 
 async def system_prompt_autocomplete(inter: Interaction, curr: str) -> List[Choice[str]]:
     db = db_client[SYSTEM_PROMPT_KEY]
@@ -91,4 +99,4 @@ async def system_prompt_autocomplete(inter: Interaction, curr: str) -> List[Choi
             curr.lower().strip() in item[1].lower().strip()
         ] 
 
-    return [Choice(name=f'[{item[0]}] {item[1][:10]}...', value=item[0]) for item in data[:25]]
+    return [Choice(name=process_three_dot(item[0], item[1]), value=item[0]) for item in data[:25]]

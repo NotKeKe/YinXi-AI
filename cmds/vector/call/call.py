@@ -4,6 +4,8 @@ from qdrant_client.models import PointStruct, Filter, FilterSelector
 import logging
 import uuid
 
+from core.mongodb_clients import MongoDB_DB
+
 from ..utils.client import AsyncClient
 from ..utils import check_alive
 from ..utils.config import MAIN_EMBED_MODEL, SUB_EMBED_MODEL, qdrant_client
@@ -52,6 +54,20 @@ async def search(query: str, collection_name: str, _filter: Filter | None = None
     )
 
     return [p.payload or {} for p in points]
+
+async def search_custom_database_uuid(userID: int | str, vector_title: str) -> str:
+    data_collection = MongoDB_DB.user_custom_data[str(userID)]
+    u = (await data_collection.find_one({'title': vector_title}))['uuid']
+    return u
+
+def process_result(data: List[Dict[str, Any]]) -> str:
+    """將 payloads 轉為 str 回傳，最終將保留 time 與 text 欄位
+
+    Args:
+        data (dict): search 的返回結果
+    """    
+    d = [f"<database id={index+1}>{f'time: {v.get("time")}' if v.get('time') else ''} {v.get('text')}</database id={index+1}>".strip() for index, v in enumerate(data)]
+    return '\n'.join(d)
 
 async def upsert(data: List[Dict[str, Any]], collection_name: str):
     try:

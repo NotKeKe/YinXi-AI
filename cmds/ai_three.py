@@ -3,13 +3,18 @@ from discord import app_commands, Interaction
 from discord.app_commands import Choice
 from discord.ext import commands
 import logging
-from motor.motor_asyncio import AsyncIOMotorClient
 from typing import Optional
 import openai
 
-from core.functions import MONGO_URL, create_basic_embed, UnixNow, testing_guildID
+from qdrant_client.models import Filter, MatchValue, FieldCondition
+
+from core.functions import create_basic_embed, UnixNow, mongo_db_client
 from core.classes import Cog_Extension
 from core.translator import locale_str, load_translated
+
+from core.qdrant import QdrantCollectionName
+from core.mongodb_clients import MongoDB_DB
+
 from cmds.ai_chat.chat.chat import Chat
 from cmds.ai_chat.chat import gener_title
 from cmds.ai_chat.tools.map import image_generate, video_generate
@@ -17,24 +22,27 @@ from cmds.ai_chat.utils import model, add_history_button, add_think_button
 from cmds.ai_chat.utils.auto_complete import chat_history_autocomplete, model_autocomplete, system_prompt_autocomplete
 from cmds.ai_chat.utils.prompt import from_name_to_system_prompt
 
+from cmds.vector.utils.autocomplete import custom_database_titles
+from cmds.vector.call.call import (
+    search as vt_search,
+    search_custom_database_uuid as vt_search_custom_database_uuid,
+    process_result as vt_process_result
+)
+
 logger = logging.getLogger(__name__)
 
 # db = db_client['aichat_chat_history']
 # 命名方式: 'ClassName_FunctionName_功能'
-db_key = 'aichat_chat_history'
+# db_key = 'aichat_chat_history'
 
 class AIChat(Cog_Extension):
     def __init__(self, bot):
         super().__init__(bot)
-        self.db_client = AsyncIOMotorClient(MONGO_URL)
-        self.db = self.db_client[db_key]
+        self.db_client = mongo_db_client
+        self.db = MongoDB_DB.aichat_chat_history
 
     async def cog_load(self):
         print(f'已載入{__name__}')
-
-    async def cog_unload(self):
-        if self.db_client:
-            self.db_client.close()
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -45,7 +53,8 @@ class AIChat(Cog_Extension):
     @app_commands.autocomplete(
         model = model_autocomplete,
         history = chat_history_autocomplete,
-        system_prompt = system_prompt_autocomplete
+        system_prompt = system_prompt_autocomplete,
+        vector_database = custom_database_titles
     )
     async def chat(
             self, 
@@ -54,12 +63,15 @@ class AIChat(Cog_Extension):
             model: str = 'cerebras:gpt-oss-120b', 
             history: str = None, 
             system_prompt: str = None,
+            vector_database: str = None,
             enable_tools: bool = True, 
             image: Optional[discord.Attachment] = None, 
             text_file: Optional[discord.Attachment] = None,
             is_vision_model: bool = False
         ):
         try:
+            await ctx.defer()
+
             db = self.db
             collection = db[str(ctx.author.id)]
 
@@ -71,9 +83,25 @@ class AIChat(Cog_Extension):
                 if not result: return await ctx.send(f'Unknow error, cannot found any title called `{history}`')
                 ls_history = result.get('messages')
 
-            system_prompt = from_name_to_system_prompt(ctx.author.id, system_prompt)
-                
-            await ctx.defer()
+            if system_prompt:
+                system_prompt = from_name_to_system_prompt(ctx.author.id, system_prompt)
+
+            if vector_database:
+                u = await vt_search_custom_database_uuid(ctx.author.id, vector_database)
+
+                data = await vt_search(
+                    prompt,
+                    QdrantCollectionName.user_custom_database,
+                    Filter(
+                        must=[
+                            FieldCondition(key='userID', match=MatchValue(value=ctx.author.id)),
+                            FieldCondition(key='uuid', match=MatchValue(value=u))
+                        ]
+                    )
+                )
+
+                if data:
+                    vector_database = vt_process_result(data)
 
             client = Chat(
                 ctx=ctx,
@@ -87,7 +115,8 @@ class AIChat(Cog_Extension):
                 history=ls_history, 
                 is_enable_tools=enable_tools, 
                 image=image, 
-                text_file=text_file
+                text_file=text_file,
+                vector_database=vector_database
             )
 
             '''i18n'''
@@ -123,6 +152,20 @@ class AIChat(Cog_Extension):
         except:
             logger.error('Error accured at chat command', exc_info=True)
             await ctx.send('Error accured :<', ephemeral=True)
+
+    @commands.hybrid_command(name=locale_str('del_chat_history'), description=locale_str('del_chat_history'))
+    @app_commands.autocomplete(history = chat_history_autocomplete)
+    @app_commands.describe(history = locale_str('del_chat_history_history'))
+    async def del_chat_history(self, ctx: commands.Context, history: str):
+        db = MongoDB_DB.aichat_chat_history
+        collection = db[str(ctx.author.id)]
+
+        result = await collection.find_one_and_delete({
+            'title': history
+        })
+        if not result: return await ctx.send(f'Unknow error, cannot found any title called `{history}`', ephemeral=True)
+        
+        await ctx.send((await ctx.interaction.translate('send_del_chat_history_success')).format(history=history), ephemeral=True)
 
     @commands.hybrid_command(name=locale_str('image_generate'), description=locale_str('image_generate'))
     @app_commands.choices(

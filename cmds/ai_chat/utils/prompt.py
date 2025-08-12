@@ -2,6 +2,7 @@ from typing import List, Tuple
 from motor.motor_asyncio import AsyncIOMotorCollection
 
 from .config import mongo_db_client
+from cmds.ai_chat.utils.config import base_system_prompt
 
 KEY = 'system_prompt'
 
@@ -15,7 +16,9 @@ async def get_prompts(collection: AsyncIOMotorCollection) -> List[Tuple[str, str
 async def from_name_to_system_prompt(userID: int | str, name: str) -> str:
     collection = mongo_db_client[KEY][str(userID)]
 
-    return (await collection.find_one({'name': name.strip()})).get('prompt')
+    data = await collection.find_one({'name': name.strip()})
+
+    return data.get('prompt') if data else base_system_prompt
 
 async def upload_custom_system_prompt(userID: int | str, name: str, prompt: str):
     collection = mongo_db_client[KEY][str(userID)]
