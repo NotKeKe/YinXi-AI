@@ -1,10 +1,10 @@
 from discord.ext import commands
-from discord import app_commands
+from discord import app_commands, Interaction
 
 from core.classes import Cog_Extension
-from core.functions import create_basic_embed, thread_pool
-from core.translator import load_translated, locale_str
-from cmds.AIsTwo.others.func import translate
+from core.functions import create_basic_embed
+from core.translator import locale_str
+from cmds.ai_chat.chat.translate import translate
 
 class Translator(Cog_Extension):
     @commands.Cog.listener()
@@ -15,23 +15,32 @@ class Translator(Cog_Extension):
     @app_commands.describe(content=locale_str('translate_content'), target=locale_str('translate_target'))
     async def translate(self, ctx: commands.Context, content: str, target:str = 'zh-TW'):
         async with ctx.typing():
-            '''i18n'''
-            yinxi_translated = await ctx.interaction.translate('yin_xi')
-            eb = await ctx.interaction.translate('embed_translate_translated')
-            eb: dict = (load_translated(eb))[0]
-            field_1: dict = (eb.get('field'))[0]
-            translate_name = field_1.get('name')
-            ''''''
-            think, translated = await thread_pool(translate, content, target, ctx.interaction.locale.value)
+            translated = await translate(content, target, ctx.interaction.locale.value)
             
-            embed = create_basic_embed(功能=yinxi_translated, color=ctx.author.color)
-            embed.add_field(name=translate_name, value=translated if translated else think, inline=False)
-            embed.set_footer(text='Powered by qwen-3-32b')
+            embed = create_basic_embed(description=translated, color=ctx.author.color)
+            embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar.url)
+            embed.set_footer(text='Powered by qwen-3-235b-a22b-instruct-2507')
 
             await ctx.send(embed=embed)
 
+    @app_commands.command(name=locale_str('translate_from_message'), description=locale_str('translate_from_message'))
+    @app_commands.describe(to_lang=locale_str('translate_from_message_to_lang'))
+    async def _translate_from_message(self, inter: Interaction, msg_id: str, to_lang: str = None):
+        await inter.response.defer(ephemeral=True, thinking=True)
 
+        try: msg_id = int(msg_id)
+        except: return await inter.followup.send(await inter.translate('translate_from_message_invaild_msgid'))
 
+        msg = await inter.channel.fetch_message(msg_id)
+        if not msg: return await inter.followup.send(await inter.translate('translate_from_message_no_msg_found'))
+        if not msg.content: return await inter.followup.send(await inter.translate('translate_from_message_no_content_found'))
+
+        translated = await translate(msg.content, to_lang or inter.locale.value, inter.locale.value)
+
+        eb = create_basic_embed(description=translated, color=inter.user.color)
+        eb.set_author(name=msg.author.name, icon_url=msg.author.avatar.url)
+        eb.set_footer(text='Powered by qwen-3-235b-a22b-instruct-2507')
+        await inter.followup.send(embed=eb, ephemeral=True)
 
 async def setup(bot):
     await bot.add_cog(Translator(bot))

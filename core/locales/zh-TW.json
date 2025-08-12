@@ -81,7 +81,8 @@
         "system_prompt_description": "系統提示詞描述",
         "delete_custom_system_prompt": "刪除自訂義系統提示詞",
         "upload_custom_system_prompt": "上傳自訂義系統提示詞",
-        "show_custom_system_prompt": "顯示自訂義系統提示詞"
+        "show_custom_system_prompt": "顯示自訂義系統提示詞",
+        "translate_from_message": "從訊息翻譯"
     },
     "description": {
         "translate": "翻譯一些文字",
@@ -165,7 +166,8 @@
         "system_prompt_description": "對於所有 音汐 AI 預設的系統提示詞，做一個簡單的描述",
         "delete_custom_system_prompt": "刪除自訂義的系統提示詞",
         "upload_custom_system_prompt": "上傳自訂義的系統提示詞",
-        "show_custom_system_prompt": "顯示你所有自訂義的系統提示詞"
+        "show_custom_system_prompt": "顯示你所有自訂義的系統提示詞",
+        "translate_from_message": "透過輸入的訊息 ID，來翻譯那個人說的話"
     },
     "params_desc": {
         "keep_time": "輸入你要音汐什麼時候提醒，會用AI判斷時間",
@@ -246,7 +248,8 @@
         "upload_custom_system_prompt_name": "傳入你希望這個提示詞的標題是什麼，方便以後辨識",
         "upload_custom_system_prompt_text": "如果你的提示詞很短，可以直接用這個貼上 (跟 file 二選一)",
         "upload_custom_system_prompt_file": "在此上傳提示詞檔案 (與 text 二選一，並且只支援 txt 與 md 格式)",
-        "delete_custom_system_prompt_name": "選擇你要刪除提示詞的名稱 (當初在 upload 的時候有輸入過他的 name)"
+        "delete_custom_system_prompt_name": "選擇你要刪除提示詞的名稱 (當初在 upload 的時候有輸入過他的 name)",
+        "translate_from_message_to_lang": "在此輸入你要翻譯為什麼語言，預設是你 Discord 使用的語言"
     },
     "components": {
         "yin_xi": "音汐",
@@ -261,11 +264,6 @@
                 "value": "1. 記得開啟此頻道的mentions通知 以免錯過提醒!\n2. 傳送通知時無法使用 `只有您才能看到這些` 的功能窩 (被提醒的時候會被看到 QAQ)"
             }],
             "footer": "時間: {keep_time}"
-        }],
-        "embed_translate_translated": [{
-            "field": [{
-                "name": "**翻譯**"
-            }]
         }],
         "embed_qrcode_generator_1": [{
             "author": "QRcode生成器"
@@ -748,6 +746,9 @@
             "author": "上傳自定義系統提示詞"
         }],
         "send_delete_custom_system_prompt_name_not_exist": "你輸入的 name 不在我紀錄的系統提示詞內欸，要不要換個 name 試試看?",
-        "send_delete_custom_system_prompt_success": "成功刪除 `{name}` !"
+        "send_delete_custom_system_prompt_success": "成功刪除 `{name}` !",
+        "translate_from_message_invaild_msgid": "你輸入了錯誤的訊息ID...",
+        "translate_from_message_no_msg_found": "在這個頻道裡面，找不到你指定的訊息欸，換個訊息翻譯看看吧w",
+        "translate_from_message_no_content_found": "你選擇的訊息沒有任何內文欸..."
     }
 }

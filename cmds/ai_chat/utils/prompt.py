@@ -5,25 +5,6 @@ from .config import mongo_db_client
 
 KEY = 'system_prompt'
 
-class DefaultSystemPrompts:
-    class Base:
-        base_yinxi = ''
-        chat_huamn = ''
-
-    class CosPlay:
-        ...
-
-    class Question:
-        socratic_method = '我希望你扮演蘇格拉底。你必須使用蘇格拉底詰問法來不斷質疑我的信念。我會發表一個聲明，你將嘗試進一步質疑每個聲明，以測試我的邏輯。你每次只能回應一行。'
-
-    class Creative:
-        story_teller = ''
-        mystery_novel = ''
-        image_generate = ''
-
-    class Utils:
-        summary = ''
-
 async def get_prompts(collection: AsyncIOMotorCollection) -> List[Tuple[str, str]]:
     '''
     Return name, prompt
