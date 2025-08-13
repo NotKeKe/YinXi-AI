@@ -54,7 +54,7 @@ class AIChat(Cog_Extension):
         model = model_autocomplete,
         history = chat_history_autocomplete,
         system_prompt = system_prompt_autocomplete,
-        vector_database = custom_database_titles
+        vector_database_name = custom_database_titles
     )
     async def chat(
             self, 
@@ -63,7 +63,7 @@ class AIChat(Cog_Extension):
             model: str = 'cerebras:gpt-oss-120b', 
             history: str = None, 
             system_prompt: str = None,
-            vector_database: str = None,
+            vector_database_name: str = None,
             enable_tools: bool = True, 
             image: Optional[discord.Attachment] = None, 
             text_file: Optional[discord.Attachment] = None,
@@ -86,8 +86,8 @@ class AIChat(Cog_Extension):
             if system_prompt:
                 system_prompt = from_name_to_system_prompt(ctx.author.id, system_prompt)
 
-            if vector_database:
-                u = await vt_search_custom_database_uuid(ctx.author.id, vector_database)
+            if vector_database_name:
+                u = await vt_search_custom_database_uuid(ctx.author.id, vector_database_name)
 
                 data = await vt_search(
                     prompt,
@@ -125,7 +125,7 @@ class AIChat(Cog_Extension):
             ''''''
 
             embed = create_basic_embed(title=eb_title, description=result, color=ctx.author.color)
-            embed.set_footer(text=f'Powered by {model}')
+            embed.set_footer(text=f"Powered by {model}{f' | database: {vector_database_name}' if vector_database_name else ''}")
 
             msg = await ctx.send(embed=embed)
 
