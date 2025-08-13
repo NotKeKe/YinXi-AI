@@ -1,14 +1,26 @@
-# 🎶 音汐 (Yin-Xi) Discord 機器人 🤖
+# 🎶 音汐 (Yin-Xi) AI Discord 機器人 🤖
 <p align="center">
   <img src="./assets/botself.png" width = "300" height = "300"/>
 </p>
 
-( cogview-3-flash 幫他畫了 6 根手指ww )
+> ( 這次是 Copilot 畫的，我覺得不好看:) )
 
-**🔗 Bot 邀請連結:**
-- [URL](https://discord.com/oauth2/authorize?client_id=1388773437257941183)
+**[🔗 Bot 邀請連結](https://discord.com/oauth2/authorize?client_id=1388773437257941183)**
 
-這是一個 Discord 機器人專案，主要結合了 AI 的各種功能 (例如: 免費的 API 調用、向量知識庫搜尋、AI 翻譯功能等...)。 <br><br>
+### 📝 簡介
+- 這是一個 Discord 機器人專案，主要結合了 AI 的各種功能 (例如: 免費的 API 調用、向量知識庫搜尋、AI 翻譯功能等...)。 <br>
+
+### 🛠️ 專案相關技術
+- 本專案使用了 [MongoDB](https://www.mongodb.com/) 做長久存儲，[Qdrant](https://qdrant.tech/) 來做**向量**數據庫相關功能，以及使用 [Redis](https://github.com/redis/redis) 保存可用的模型及[本地 LM Studio](https://lmstudio.ai/) 狀態。
+
+### 🔌 API 接口來源
+- 目前的 API 接口來源有以下幾個:
+    1. [Cerebras](https://cloud.cerebras.ai/)
+    2. [Zhipu](https://open.bigmodel.cn/)
+    3. [Gemini](https://aistudio.google.com/)
+    4. [Ollama](https://ollama.com/)
+    5. [LM Studio](https://lmstudio.ai/)
+    6. 未來預計會讓使用者使用自定義 Provider，不過由於安全性問題，目前尚未開發相關功能。
 
 
 ## ✨ 特色
@@ -19,59 +31,37 @@
 ## 🚀 使用方法
 - `/help` 快速取得該 Bot 的概略功能。
 
-### 💡 常用指令範例
-以下是一些常用的指令範例，讓您快速上手：
-*   `/chat [您的訊息]`：與 AI 進行對話。
-    > (20250806 將整體架構修改，正是支援異步)
-*   `/翻譯 [語言] [文字]`：用 AI 將文字翻譯成指定語言。
+### 💡 指令範例
+以下是一些指令範例，讓您快速上手：<br>
+1. **AI 聊天**:
+    *   **/chat [您的訊息]**：
+        > 與 AI 進行對話。 <br>
+        > (20250806 將整體架構修改，正式支援異步)
+    *   **/set_ai_channel**：
+        > 讓你在不使用指令的情況下，直接在當前頻道跟音汐AI聊天。
+    *   **直接透過私訊也可以聊天!**
+2. **AI 翻譯**:
+    *   **/翻譯 [語言] [文字]**：
+        > 使用 AI 將文字翻譯成指定語言。
+    *   **/translate_from_message [訊息ID] [翻譯為什麼語言]**：
+        > 透過指定的 Message ID 翻譯那個人說的話 (不會顯示在頻道內，所以不用在意你的翻譯被別人看到!)
+3. **提示詞調整**:
+    *   基本上有分為 **提示詞描述**、**提示詞上傳**、**提示詞刪除** 等...
+        > 記得多多探索可用的指令 :D
+4. **向量知識庫** (相關功能尚未支援多語言，目前僅繁體中文):
+    *   **/向量自定義知識庫加入**
+        > 可以選擇上傳檔案，目前支援 .txt 與 .md 格式。
+    *   **/向量自定義知識庫查詢**
+    *   **/向量自定義知識庫刪除**
+    *   **/向量自定義知識庫改名**
 
 ## ⚡ Quick Start
-**❗建議使用 Python 3.13+ 以上的環境❗**
-
-**請先設定 `.env` 檔案**:
-* 請參考以下「配置設定 - 環境變數」部分，建立並填寫您的 `.env` 檔案。 <br>
-**！務必在 .env 內填上 `DISCORD_TOKEN`！**<br><br>
-
-**選項一** 使用 **[Docker](https://www.docker.com/)** (使用 docker 才會包括 fastapi 與 MongoDB 的部分):
-```bash
-# 將專案克隆至本地目錄
-git clone https://github.com/NotKeKe/Discord-Bot-YinXi.git
-
-# 進入專案目錄
-cd Discord-Bot-YinXi
-
-# 使用 docker compose 執行
-docker-compose up -d
-```
-
-**選項二** 使用 **[uv](https://github.com/astral-sh/uv)**:
-1. **與專案環境同步**:
-    ```bash
-    uv sync
-    ```
-2. **啟動機器人**:
-    ```bash
-    uv run newbot2.py
-    ```
-
-## ⚙️ 配置設定
-
-### 🔑 環境變數 (`.env`)
-
-為了讓專案正常運行，您需要建立一個 `.env` 檔案，並在其中設定必要的環境變數。
-
-`.env` 檔案的範例如下：
-
-```
-# 其他可能需要的環境變數，例如：
-DISCORD_TOKEN = YOUR-DISCORD-BOT-TOKEN
-```
-
-請根據您的實際需求填寫這些變數。
+直接邀請**音汐 AI** 進去你的伺服器吧~<br>
+[邀請連結](https://discord.com/oauth2/authorize?client_id=1388773437257941183)
 
 ## 🤝 貢獻指南
 我們歡迎任何形式的貢獻！如果您想為 音汐 AI 機器人做出貢獻，請遵循以下步驟：
-1. 把他要進伺服器 多跟他說說話吧w
+1. 把他邀進伺服器 多跟他說說話吧w
 
 ## ❓ 常見問題 (FAQ)
 *   這個 Bot 為什麼跟[音汐](https://github.com/NotKeKe/Discord-Bot-YinXi)那麼像?

@@ -62,7 +62,6 @@ class VectorTest(Cog_Extension):
         await inter.followup.send(f'插入 {status}')
 
     @app_commands.command(name='向量自定義知識庫加入')
-    @app_commands.guilds(discord.Object(id=testing_guildID))
     async def vector_test_add_file(self, inter: Interaction, file: discord.Attachment, title: str):
         await inter.response.defer(ephemeral=True, thinking=True)
         # await inter.followup.send(file.filename)
@@ -84,7 +83,6 @@ class VectorTest(Cog_Extension):
         await inter.followup.send('插入成功')
 
     @app_commands.command(name='向量自定義知識庫查詢')
-    @app_commands.guilds(discord.Object(id=testing_guildID))
     @app_commands.autocomplete(database=custom_database_titles)
     async def vector_test_search_custom(self, inter: Interaction, query: str, database: str):
         await inter.response.defer(ephemeral=True, thinking=True)
@@ -102,7 +100,6 @@ class VectorTest(Cog_Extension):
         await inter.followup.send(orjson.dumps(result, option=orjson.OPT_INDENT_2).decode('utf-8'))
 
     @app_commands.command(name='向量自定義知識庫改名')
-    @app_commands.guilds(discord.Object(id=testing_guildID))
     @app_commands.autocomplete(original_database_name=custom_database_titles)
     async def vector_test_rename_custom(self, inter: Interaction, original_database_name: str, new_name: str):
         await inter.response.defer(ephemeral=True, thinking=True)
@@ -114,7 +111,6 @@ class VectorTest(Cog_Extension):
         await inter.followup.send('success')
 
     @app_commands.command(name='向量自定義知識庫刪除')
-    @app_commands.guilds(discord.Object(id=testing_guildID))
     @app_commands.autocomplete(database=custom_database_titles)
     async def vector_test_delete_custom(self, inter: Interaction, database: str):
         await inter.response.defer(ephemeral=True, thinking=True)
