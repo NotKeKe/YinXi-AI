@@ -265,8 +265,6 @@ class Chat:
 
         if not history: history = []
 
-        logger.info(f'Got model: {self.model}')
-
         provider, self.model = split_provider_model(self.model)
         if not self.model: return '', f'`{self.model}` is not available.', history
 
@@ -275,7 +273,7 @@ class Chat:
 
         system = to_system_message(
             (custom_system_prompt if custom_system_prompt else system_prompt) + 
-            (f'\n\n## These are vector database provided by user:\n{vector_database}' if vector_database else '')
+            (f'\n\n<vector_database_search_result_provided_by_user>\n{vector_database}</vector_database_search_result_provided_by_user>' if vector_database else '')
         )
 
         history += await self.process_user_prompt(prompt, image, text_file, url)

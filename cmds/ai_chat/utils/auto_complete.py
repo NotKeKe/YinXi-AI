@@ -1,9 +1,10 @@
 from discord import app_commands, Interaction
 from discord.app_commands import Choice
 from typing import List
+import orjson
 
 from core.functions import UnixToReadable
-from .config import db_client
+from .config import db_client, redis_client
 from .prompt import (
     get_prompts,
     KEY as SYSTEM_PROMPT_KEY
@@ -27,12 +28,8 @@ async def chat_history_autocomplete(interaction: Interaction, current: str) -> L
     return [Choice(name=f'{title} ({UnixToReadable(time)})', value=title) for title, time in data[:25] if title != '']
 
 async def model_autocomplete(interaction: Interaction, current: str) -> List[Choice[str]]:
-    db = db_client['aichat_available_models']
-    collection = db['models']
-
-    _id = 'model_setting'
-
-    result = await collection.find_one({'_id': _id})
+    result = await redis_client.get('aichat_available_models')
+    result = orjson.loads(result)
 
     models = [(provider, model) for provider, item in dict(result).items() if provider != '_id' for model in item]
 

@@ -15,6 +15,7 @@ import aiohttp
 from urllib.parse import quote_plus
 from motor.motor_asyncio import AsyncIOMotorClient
 from qdrant_client import AsyncQdrantClient
+import redis.asyncio as redis
 
 import os
 from dotenv import load_dotenv
@@ -47,7 +48,13 @@ GENIUS_ACCESS_TOKEN = os.getenv('GENIUS_ACCESS_TOKEN')
 MONGO_USER = quote_plus(str(os.getenv('MONGO_USER')))
 MONGO_PASSWORD = quote_plus(str(os.getenv('MONGO_PASSWORD')))
 
-
+# Redis
+redis_client = redis.Redis(
+    host='redis', 
+    port=6379, 
+    db=0,
+    decode_responses=True
+)
 
 def read_json(path: str) -> Union[dict, list, None]:
     """將path讀取成物件並回傳"""

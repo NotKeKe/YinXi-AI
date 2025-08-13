@@ -1,7 +1,7 @@
 from qdrant_client import models
 import logging
 
-from core.functions import settings, qdrant_client
+from core.functions import settings, qdrant_client, redis_client
 from core.qdrant import QdrantCollectionName as CollectionName
 
 logger = logging.getLogger(__name__)

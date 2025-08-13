@@ -138,6 +138,10 @@ class VectorTest(Cog_Extension):
         
         await inter.followup.send('success')
 
+    @commands.command(name='ollama_check_alive')
+    async def _ollama_check_alive(self, ctx: commands.Context):
+        await ctx.send(await check_alive.get_connection_status())
+
     @tasks.loop(seconds=60)
     async def ollama_check_alive(self):
         await check_alive.connection_check()

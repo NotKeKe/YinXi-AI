@@ -17,7 +17,7 @@ def hash_id(text: str, collection_name: str) -> int:
     return int(uuid.uuid5(namespace, text).hex[:12], 16)
 
 async def get_embedding(text: Union[List[str], str]) -> List[List[float]]:
-    client, model = model_select()
+    client, model = await model_select()
 
     if isinstance(text, str):
         text = [text]
@@ -29,18 +29,21 @@ async def get_embedding(text: Union[List[str], str]) -> List[List[float]]:
     embeddings = [data.embedding for data in resp.data]
     return embeddings
 
-def model_select() -> Tuple[AsyncOpenAI, str]:
+async def model_select() -> Tuple[AsyncOpenAI, str]:
     """Return AsyncOpenAI and model
 
     Returns:
         Tuple[AsyncOpenAI, str]: _description_
     """    
-    if check_alive.connected:
+    if (await check_alive.get_connection_status()):
         client = AsyncClient.lmstudio
         model = MAIN_EMBED_MODEL
     else:
         client = AsyncClient.self_ollama
         model = SUB_EMBED_MODEL
+    
+    logger.info(f'Got {client=}, {model=}')
+
     return client, model
 
 async def search(query: str, collection_name: str, _filter: Filter | None = None, num: int = 5) -> List[Dict[str, Any]]:

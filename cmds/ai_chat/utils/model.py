@@ -1,7 +1,8 @@
 import logging
+import orjson
 
 from .client import AsyncClient
-from .config import db_client
+from .config import db_client, redis_client
 
 logger = logging.getLogger(__name__)
 
@@ -60,26 +61,20 @@ async def fetch_models():
         logger.error(f'Cannot fetch lmstudio models: {e}')
         lmstudio_models = []
 
+    try:
+        self_ollama_models = [model.id for model in (await AsyncClient.self_ollama.models.list()).data]
+    except Exception as e:
+        logger.error(f'Cannot fetch self_ollama models: {e}')
+        self_ollama_models = []
+
     data = {
         'openrouter': openrouter_models,
         'zhipu': zhipu_models,
         'ollama': ollama_models,
         'gemini': gemini_models,
         'cerebras': cerebras_models,
-        'lmstudio': lmstudio_models
+        'lmstudio': lmstudio_models,
+        'self_ollama': self_ollama_models
     }
-    
-    db = db_client['aichat_available_models']
-    collection = db['models']
 
-    _id = 'model_setting'
-
-    await collection.find_one_and_replace(
-        {'_id': _id},
-        data,
-        upsert=True
-    )
-
-        # async with aiofiles.open(MODEL_TEMP_PATH, 'wb') as f:
-        #     await f.write(orjson.dumps(data, option=orjson.OPT_INDENT_2))
-        #     logger.info('successfully write models')
+    await redis_client.set('aichat_available_models', orjson.dumps(data).decode('utf-8'))
