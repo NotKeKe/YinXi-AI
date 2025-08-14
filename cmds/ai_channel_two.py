@@ -3,8 +3,9 @@ from discord import app_commands
 from discord.ext import commands
 import logging
 import openai
+import orjson
 
-from core.functions import create_basic_embed, current_time, get_attachment, split_str_by_len_and_backtick, UnixNow
+from core.functions import create_basic_embed, current_time, get_attachment, split_str_by_len_and_backtick, UnixNow, redis_client
 from core.classes import Cog_Extension, get_bot
 from core.translator import locale_str, load_translated
 
@@ -241,12 +242,10 @@ class AIChannelTwo(Cog_Extension):
                 provider, model = split_provider_model(model)
 
                 async def check_model():
-                    db = MongoDB_DB.aichat_available_models
-                    collection = db['models']
-
-                    _id = 'model_setting'
-                    data = await collection.find_one({'_id': _id})
-                    models = set([m for models in data.values() for m in models if m != _id])
+                    s_data = await redis_client.get('aichat_available_models')
+                    data: dict = orjson.loads(s_data)
+                    
+                    models = set([m for models in data.values() for m in models])
 
                     return model in models
                 

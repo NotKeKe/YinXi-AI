@@ -1,6 +1,7 @@
 import logging
 
 from .chat import Chat
+from cmds.vector.utils.check_alive import get_connection_status
 
 logger = logging.getLogger(__name__)
 
@@ -21,9 +22,14 @@ gener_title_prompt = '''
 7. **語言偵測失敗時**：若無法判斷語言，請預設使用繁體中文。
 '''
 
+async def select_model() -> str:
+    status = await get_connection_status()
+
+    return 'lmstudio:qwen3-0.6b' if status else 'self_ollama:hf.co/unsloth/Qwen3-0.6B-GGUF:Q4_K_S'
+
 async def gener_title(history: list, length: int = 15):
     try:
-        client = Chat(model='self_ollama:hf.co/unsloth/Qwen3-0.6B-GGUF:Q4_K_S', system_prompt=gener_title_prompt)
+        client = Chat(model=(await select_model()), system_prompt=gener_title_prompt)
 
         # process prompt
         prompt_ls = ['/no_think\n以下為兩個人之間的對話，請生成標題: ']

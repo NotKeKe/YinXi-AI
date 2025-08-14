@@ -73,5 +73,5 @@
 *   至 GitHub 的 [Issues](https://github.com/NotKeKe/YinXi-AI/issues/new) 註明您的問題或建議。
 *   私訊克克 (Discord: .kejc) 來詢問有關此 Bot 的各種問題
 
-## 📄 授權
+## 📄 License
 - [Apache License 2.0](LICENSE)

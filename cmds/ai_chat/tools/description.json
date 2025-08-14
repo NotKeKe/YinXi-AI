@@ -130,6 +130,37 @@
                     "required": []
                 }
             }
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "search_user_long_term_memory",
+                "description": "搜尋你對該使用者的長期記憶 (例如: 偏好、習慣等...)",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "userID": { "type": "integer", "description": "在此輸入使用者ID" },
+                        "query": { "type": "string", "description": "在此輸入搜尋完整的一句話，最終function將會使用向量 (vector)進行搜尋。" },
+                        "nums": { "type": "integer", "description": "在此輸入查詢的結果數量，預設為5" }
+                    },
+                    "required": ["userID", "query"]
+                }
+            }
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "delete_user_long_term_memory",
+                "description": "刪除你對該使用者的長期記憶 (例如: 偏好、習慣等...) (僅在你使用 search_user_long_term_memory，並且知道該 memory 的 uuid 後，才調用此工具)",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "userID": { "type": "integer", "description": "在此輸入使用者ID" },
+                        "uuid": { "type": "string", "description": "在此輸入該 memory 的 uuid" }
+                    },
+                    "required": ["userID", "uuid"]
+                }
+            }
         }
     ]
 }

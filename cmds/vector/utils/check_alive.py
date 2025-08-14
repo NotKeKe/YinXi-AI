@@ -13,5 +13,6 @@ async def connection_check() -> bool:
             await redis_client.set('lmstudio_is_connected', 1 if resp.status == 200 else 0)
 
 async def get_connection_status() -> bool:
+    '''Get LM Studio connection status'''
     result = await redis_client.get('lmstudio_is_connected')
-    return result == '1'
+    return int(result) == 1

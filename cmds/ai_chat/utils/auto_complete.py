@@ -20,12 +20,12 @@ async def chat_history_autocomplete(interaction: Interaction, current: str) -> L
     ]
         
     if current:
-        data = [(title, time) for title, time in data if current.lower().strip() in title.lower().strip() and title != '']
+        data = [(title, time) for title, time in data if title and current.lower().strip() in title.lower().strip()]
 
     data.sort(key=lambda x: x[1], reverse=True)
 
     # 限制最多回傳 25 個結果
-    return [Choice(name=f'{title} ({UnixToReadable(time)})', value=title) for title, time in data[:25] if title != '']
+    return [Choice(name=f'{title} ({UnixToReadable(time)})', value=title) for title, time in data[:25] if title]
 
 async def model_autocomplete(interaction: Interaction, current: str) -> List[Choice[str]]:
     result = await redis_client.get('aichat_available_models')

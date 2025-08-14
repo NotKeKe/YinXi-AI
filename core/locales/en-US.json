@@ -81,7 +81,15 @@
         "system_prompt_description": "system_prompt_description",
         "delete_custom_system_prompt": "delete_custom_system_prompt",
         "upload_custom_system_prompt": "upload_custom_system_prompt",
-        "show_custom_system_prompt": "show_custom_system_prompt"
+        "show_custom_system_prompt": "show_custom_system_prompt",
+        "del_chat_history": "del_chat_history",
+        "show_long_term_memory": "show_long_term_memory",
+        "add_long_term_memory": "add_long_term_memory",
+        "clear_long_term_memory": "clear_long_term_memory",
+        "custom_vector_database_upload": "custom_vector_database_upload",
+        "custom_vector_database_search": "custom_vector_database_search",
+        "custom_vector_database_delete": "custom_vector_database_delete",
+        "custom_vector_database_rename": "custom_vector_database_rename"
     },
     "description": {
         "translate": "Translate some text",
@@ -165,7 +173,15 @@
         "system_prompt_description": "A simple description of all YinXi AI default system prompts",
         "delete_custom_system_prompt": "Delete a custom system prompt",
         "upload_custom_system_prompt": "Upload a custom system prompt",
-        "show_custom_system_prompt": "Show all your custom system prompts"
+        "show_custom_system_prompt": "Show all your custom system prompts",
+        "del_chat_history": "Delete one of your chat histories using /chat",
+        "show_long_term_memory": "List AI's long-term memories of you",
+        "add_long_term_memory": "Add AI's long-term memories of you",
+        "clear_long_term_memory": "Clear AI's long-term memories of you",
+        "custom_vector_database_upload": "You can upload your custom knowledge base here and store it as vectors",
+        "custom_vector_database_search": "You can use keywords to test what results your search will show",
+        "custom_vector_database_delete": "Completely delete one of your custom knowledge bases",
+        "custom_vector_database_rename": "Rename a knowledge base you previously uploaded"
     },
     "params_desc": {
         "keep_time": "Enter when you want YinXi to remind you, AI will be used to determine the time",
@@ -246,7 +262,12 @@
         "upload_custom_system_prompt_name": "Enter the title you want for this prompt for easy identification later",
         "upload_custom_system_prompt_text": "If your prompt is short, you can paste it directly here (choose one between this and file)",
         "upload_custom_system_prompt_file": "Upload the prompt file here (choose one between this and text, and only txt and md are supported)",
-        "delete_custom_system_prompt_name": "Select the name of the prompt you want to delete (the name you entered when you uploaded it)"
+        "delete_custom_system_prompt_name": "Select the name of the prompt you want to delete (the name you entered when you uploaded it)",
+        "del_chat_history_history": "Select a chat history title you want to delete",
+        "custom_vector_database_upload_file": "Upload your knowledge base file here, currently only .txt and .md are supported",
+        "custom_vector_database_upload_title": "Give your knowledge base a name here~ This way it will be easier to find later",
+        "custom_vector_database_search_query": "Enter the keywords you want to search here",
+        "custom_vector_database_delete_database": "Select the name of the knowledge base you want to delete"
     },
     "components": {
         "yin_xi": "YinXi",
@@ -297,32 +318,28 @@
         "embed_help_main": [{
             "author": "Command Help",
             "fields": [{
-                    "name": "**Features**",
-                    "value": "> ✅ Discord Bot integrated with AI\n> ✅ Has music features, including looping!\n> ✅ Provides many useful small features\n> ✅ Most commands can be directly called using `[` instead of being limited to slash commands"
+                    "name": "✨ **Features**",
+                    "value": "✨ **Discord Bot combined with AI**\n🗣️ Chat with him without entering commands\n🧠 Upload your own knowledge base\n✍️ Use custom prompts\n🕊️ Enjoy a high degree of freedom in interaction"
                 },
                 {
-                    "name": "**🌟 AI Features**",
-                    "value": "> `/chat` - Chat with AI\n> `/ai_channel` - Set up an AI channel, chat without entering commands\n> `/image_generation` - Generate images with AI (cogview-3-flash)\n> You can also chat by DMing YinXi!"
+                    "name": "💬 **Chat**",
+                    "value": "> `/chat` - Communicate with AI (you can chat with the powerful gpt-oss-120b!)\n> `/open_ai_channel` - Set up a dedicated AI channel, you can talk without commands\n> `/image_generation` - Call AI to generate pictures (using cogview-3-flash model)\n> `/delete_chat_history` - Clear the conversation history with AI\n> 💬 Direct message YinXi AI, you can also chat easily!"
                 },
                 {
-                    "name": "**👥 Server Features**",
-                    "value": "> `/server_info` - Quickly get important information about this server\n> `/world_chat` - Communicate with other users who have this feature enabled across servers\n> `/counting_channel` - Play a number relay game with server members\n> `/get_system_channel` - As the name suggests\n> `/avatar` - Take someone's avatar when they're not looking w"
+                    "name": "📚 **Knowledge Base (Vector Database)**",
+                    "value": "> `/custom_vector_database_upload` - Upload your **exclusive knowledge base**!\n> `/custom_vector_database_search` - Use keywords to search and see what surprises you will find!\n> `/custom_vector_database_delete` - **Permanently remove** your custom knowledge base\n> `/vector_custom_database_rename` - Rename the knowledge base you uploaded"
                 },
                 {
-                    "name": "**🎶 Music Features**",
-                    "value": "> `/play` or `[p` `{query}` - Play a song ▶️\n> `/add` `{query}` - Add a song to the playlist ➕\n> `/skip` or `[s` - Skip the current song ⏭️\n> `/back` - Go back to the previous song ⏮️\n> `/pause` or `[ps` or `[暫停` - Pause the music ⏸️\n> `/resume` or `[rs` - Resume the music ▶️\n> `/stop` - Clear the playlist and leave the channel ⏹️\n> `/loop {loop_type}` - Set the loop mode 🔁\n> `/current_playing` or `[np` or `[now` - Show the currently playing song ℹ️\n> `/list` or `[q` - Show the playlist 📋\n> `/delete_song` or `[rm` `{number}` - Delete a song from the playlist ❌\n> `/clear_queue` or `[clear` - Clear the entire playlist 🧹\n> `/leave` - Leave the voice channel 🚪\n> **Some commands have other ways to be called, be sure to try them out~**"
+                    "name": "📝 **Prompt**",
+                    "value": "> `/system_prompt_description` - View the descriptions of all system prompts built into YinXi AI\n> `/upload_custom_system_prompt` - Upload your carefully crafted system prompts\n> `/show_custom_system_prompt` - Browse all the custom prompts you have uploaded\n> `/delete_custom_system_prompt` - Remove custom prompts that are no longer needed"
                 },
                 {
-                    "name": "**🔧 Useful Gadgets**",
-                    "value": "> `/minecraft_server_status` - Check the status of a Minecraft server\n> `[nasa` - Get the daily image provided by NASA\n> `[cat` - Get daily cat knowledge 🐱\n> `[image {query} {number}` - Enter the keyword you want to search for and the number of images to search for, and you'll get the images you want (you can also leave it blank!)\n> `[gif` - Use `/gif` to see how to use it~\n> `[simp` - Say something a simp would say 🐶🐶🐶 **~~(but the official says it's a jerk quote)~~**\n> `/qrcode_generator` - Convert a link to a QR Code\n> `/remind` - Reminder function! After you set it up, it will remind you of what you need to do in the same channel when the time comes\n> `/subscribe_youtube` - Notifies you when a YouTuber you follow has updated! (If you don't enter anything in the youtuber field, it will be cancelled)\n> `/output_chat_history` - Output channel chat history (can be output as a `json` or `txt` file)"
-                },
-                {
-                    "name": "**🤫 Features most people won't use**",
-                    "value": "> `/convert_timestamp` - Convert a timestamp to a readable time"
+                    "name": "🧠 **Long-term Memory**",
+                    "value": "> `/list_long_term_memory` - See how well the AI knows you\n> `/add_long_term_memory` - Let the AI understand you better\n> `/clear_long_term_memory` - Erase all long-term memories about you"
                 },
                 {
                     "name": "Other:",
-                    "value": "> There are more features waiting for you to discover!"
+                    "value": "> ✨ There are more exciting features waiting for you to explore!"
                 }
             ]
         }],
@@ -748,6 +765,21 @@
             "author": "Upload Custom System Prompt"
         }],
         "send_delete_custom_system_prompt_name_not_exist": "The name you entered is not in my recorded system prompts, would you like to try another name?",
-        "send_delete_custom_system_prompt_success": "Successfully deleted `{name}` !"
+        "send_delete_custom_system_prompt_success": "Successfully deleted `{name}` !",
+        "send_del_chat_history_success": "Successfully deleted `{history}`!",
+        "embed_show_long_term_memory": [{
+            "title": "Long-term Memory Display"
+        }],
+        "send_add_long_term_memory_succeeded": "Successfully added `{text}` to long-term memory",
+        "send_add_long_term_memory_failed": "Unable to add `{text}` to long-term memory right now:thinking::thinking:\nPerhaps try again later~",
+        "send_clear_long_term_memory_succeeded": "Successfully cleared all long-term memory",
+        "send_clear_long_term_memory_canceled": "Operation canceled",
+        "embed_clear_long_term_memory_confirm": [{
+            "title": "❓Are you sure you want to clear all long-term memory?"
+        }],
+        "send_custom_vector_database_upload_invalid_file_format": "Currently, only txt (text file) and md (markdown) data formats are supported.",
+        "send_custom_vector_database_upload_success": "Upload successful! (file: `{filename}`)",
+        "send_custom_vector_database_rename_success": "Successfully renamed `{original_name}` to `{new_name}`",
+        "send_custom_vector_database_delete_success": "Successfully deleted `{name}`"
     }
 }

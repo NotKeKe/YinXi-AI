@@ -6,12 +6,17 @@ from openai.types.chat import ChatCompletionChunk, ChatCompletion, ChatCompletio
 import orjson
 import logging
 import re
+import asyncio
 
 from ..utils import model_select, to_system_message, to_user_message, get_think, clean_text, split_provider_model
 from ..utils.config import base_system_prompt, summarize_history_system_prompt
 
 # tool
 from ..tools import tool_description, tool_map
+from ..tools.func import search_user_long_term_memory
+
+# long term memory
+from cmds.vector.call.user_long_term_memory import long_term_memory
 
 from core.functions import is_async, image_to_base64, current_time
 from core.classes import get_bot
@@ -28,6 +33,8 @@ class Chat:
         self.client = None
 
         self.system_prompt = str(base_system_prompt) if system_prompt in ('', None) else system_prompt
+
+        self.user_info = None # 用於讓AI判別，避免重複存儲
 
     async def re_model(self, model: str):
         """重新選擇模型
@@ -53,20 +60,21 @@ class Chat:
         self.system_prompt = system_prompt
         return True
     
-    def get_extra_user_info(self) -> str:
+    async def get_extra_user_info(self, user_prompt: str) -> str:
         if not self.userID: return ''
 
         bot = get_bot()
         name = (bot.get_user(self.userID)).global_name
         preference = None
-        info = None
+        info = await search_user_long_term_memory(self.userID, user_prompt, 3)
+        self.user_info = info
 
         return (
 '''
 ## 關於 {name} 的資訊
-- 偏好: {preference}
-- 其他資訊: {info}
-'''.format(name=name, preference=preference, info=info)
+- 使用者ID: `{userID}`
+- 資訊: ```{info}```
+'''.format(name=name, preference=preference, info=info, userID=self.ctx.author.id)
 )
         #TODO
 
@@ -268,7 +276,11 @@ class Chat:
         provider, self.model = split_provider_model(self.model)
         if not self.model: return '', f'`{self.model}` is not available.', history
 
-        extra_user_info = self.get_extra_user_info()
+        # Openrouter 大部分模型都不支援工具調用
+        if provider == 'openrouter':
+            is_enable_tools = False
+
+        extra_user_info = await self.get_extra_user_info(prompt)
         system_prompt = self.system_prompt + extra_user_info
 
         system = to_system_message(
@@ -318,6 +330,8 @@ class Chat:
             '''replace "`" to "´", 避免顏文字影響 discord 輸出'''
             return re.sub(r'\(([^)]*?)\)', lambda m: '(' + m.group(1).replace('`', '´') + ')', s)
         
+        if self.userID and result and self.userID:
+            asyncio.create_task(long_term_memory(self.userID, prompt, result, self.user_info, self.ctx))
 
         return think, replace_backticks_in_parentheses(result), history
             

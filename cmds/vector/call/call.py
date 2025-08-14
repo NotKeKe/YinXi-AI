@@ -1,6 +1,6 @@
 from typing import Tuple, Union, List, Any, Dict
 from openai import AsyncOpenAI
-from qdrant_client.models import PointStruct, Filter, FilterSelector
+from qdrant_client.models import PointStruct, Filter, FilterSelector, Record
 import logging
 import uuid
 
@@ -73,6 +73,11 @@ def process_result(data: List[Dict[str, Any]]) -> str:
     return '\n'.join(d)
 
 async def upsert(data: List[Dict[str, Any]], collection_name: str):
+    '''
+    data: [
+        {text: 'aslmflas;mf;'} # required
+    ]
+    '''
     try:
         texts = [item['text'] for item in data]
         embeddings = await get_embedding(texts)
@@ -100,3 +105,25 @@ async def delete(collection_name: str, filter: Filter):
         collection_name=collection_name,
         points_selector=FilterSelector(filter=filter)
     )
+
+async def show(collection_name: str, filter: Filter) -> List[Dict[str, Any]]:
+    all_found: List[Record] = []
+    last_scored_point = None
+
+    while True:
+        result, next_page = await qdrant_client.scroll(
+            collection_name=collection_name,
+            scroll_filter=filter,
+            limit=10,
+            offset=last_scored_point,
+            with_payload=True,
+            with_vectors=False
+        )
+
+        if not result: break
+
+        all_found.extend(result)
+        last_scored_point = next_page
+        if next_page is None: break
+
+    return [p.payload for p in all_found]

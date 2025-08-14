@@ -1,3 +1,3 @@
-from .call import search, upsert, delete
+from .call import search, upsert, delete, show
 
-__all__ = ['search', 'upsert', 'delete']
+__all__ = ['search', 'upsert', 'delete', 'show']

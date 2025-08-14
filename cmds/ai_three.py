@@ -86,6 +86,7 @@ class AIChat(Cog_Extension):
             if system_prompt:
                 system_prompt = from_name_to_system_prompt(ctx.author.id, system_prompt)
 
+            vector_database = None
             if vector_database_name:
                 u = await vt_search_custom_database_uuid(ctx.author.id, vector_database_name)
 
