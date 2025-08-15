@@ -35,7 +35,8 @@ async def gener_title(history: list, length: int = 15):
         prompt_ls = ['/no_think\n以下為兩個人之間的對話，請生成標題: ']
         for h in history:
             if h.get('role') == 'user':
-                prompt_ls.append(f'使用者: {h.get("content")}')
+                content = h.get("content")
+                prompt_ls.append(f'使用者: {content if isinstance(content, str) else content[0]['text']}')
             elif h.get('role') == 'assistant':
                 prompt_ls.append(f'AI: {h.get("content")}')
 

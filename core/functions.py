@@ -112,7 +112,6 @@ MONGO_URL = f"mongodb://{MONGO_USER}:{MONGO_PASSWORD}@{DEVICE_IP}:27021/"
 
 mongo_db_client = AsyncIOMotorClient(MONGO_URL)
 qdrant_client = AsyncQdrantClient(url="http://qdrant:6333", timeout=30)
-crawl4ai_client = Crawl4aiDockerClient(base_url=f"http://{DEVICE_IP}:11235")
 
 def create_basic_embed(title = None, description = None, color = discord.Color.blue(), 功能:str = None, time=True):
     '''

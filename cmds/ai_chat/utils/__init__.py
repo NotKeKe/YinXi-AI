@@ -8,8 +8,8 @@ __all__ = ['model_select', 'get_think', 'clean_text', 'chat_history_autocomplete
 def to_system_message(prompt: str) -> list:
     return [{'role': 'system', 'content': prompt}]
 
-def to_user_message(prompt: str) -> list:
-    return [{'role': 'user', 'content': prompt}]
+def to_user_message(prompt: str, image_base64: str = None) -> list:
+    return [{'role': 'user', 'content': prompt if not image_base64 else [{'type': 'text', 'text': prompt}, {'type': 'image_url', 'image_url': {'url': f'data:image/jpeg;base64,{image_base64}'}}]}]
 
 def to_assistant_message(prompt: str) -> list:
     return [{'role': 'assistant', 'content': prompt}]

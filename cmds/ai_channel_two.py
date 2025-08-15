@@ -121,11 +121,22 @@ class AIChannelTwo(Cog_Extension):
                 model = init_data.get('model')
                 provider = init_data.get('provider')
                 system_prompt = init_data.get('system_prompt')
-                urls = get_attachment(msg)
+                image = None
+                urls = []
+
+                for attachment in msg.attachments:
+                    if not attachment.content_type: return
+
+                    if attachment.content_type.startswith('image/') and not image:
+                        image = attachment
+                        continue
+
+                    if attachment.url:
+                        urls.append(attachment.url)
 
                 final_model = f'{provider}:{model}'
 
-                think, result, complete_history = await ai_channel_chat(ctx, msg.content, final_model, system_prompt, urls)
+                think, result, complete_history = await ai_channel_chat(ctx, msg.content, final_model, system_prompt, urls, image)
 
                 ls = split_str_by_len_and_backtick(result, 1999)
 
@@ -150,7 +161,7 @@ class AIChannelTwo(Cog_Extension):
     @commands.hybrid_command(name=locale_str('set_ai_channel'), description=locale_str('set_ai_channel'))
     @commands.has_permissions(administrator=True)
     @app_commands.autocomplete(model=model_autocomplete)
-    async def set_ai_channel(self, ctx: commands.Context, model: str = None, system_prompt: str = None):
+    async def set_ai_channel(self, ctx: commands.Context, model: str = None, system_prompt: str = None, is_vision_model: bool = False):
         try:
             async with ctx.typing():
                 db = MongoDB_DB.aichannel_chat_history
@@ -178,6 +189,7 @@ class AIChannelTwo(Cog_Extension):
                         'channel': ctx.channel.id,
                         'initial_member': ctx.author.id,
                         'system_prompt': system_prompt,
+                        'is_vision_model': is_vision_model,
                         'createAt': UnixNow()
                     }
                 )

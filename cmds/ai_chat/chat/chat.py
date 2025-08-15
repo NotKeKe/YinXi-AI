@@ -72,6 +72,10 @@ class Chat:
         return (
 '''
 ## 關於 {name} 的資訊
+### 注意事項 (Notice):
+    1. 除非使用者明確詢問你對他的了解或對話內容確實需要這些資訊才能繼續進行（例如：根據身分給予特定回應），否則請絕對不要主動提及或重複這些個人資訊。
+    2. 永遠避免「思考過程洩漏」：即使你在推理中想到「他喜歡甜品」，也不要讓這個想法出現在回應裡。
+### 資訊 (Information):
 - 使用者ID: `{userID}`
 - 資訊: ```{info}```
 '''.format(name=name, preference=preference, info=info, userID=self.ctx.author.id)
@@ -230,22 +234,35 @@ class Chat:
                 }
             )
 
-    async def process_user_prompt(self, user_prompt: str, image: discord.Attachment = None, text_file: discord.Attachment = None, url: str = None) -> list:
+    async def process_user_prompt(self, user_prompt: str, image: discord.Attachment = None, text_file: discord.Attachment = None, url: str = None, is_vision_model: bool = False) -> list:
         image_content = None
         text_file_content = None
         if text_file:
-            text_file_content = await text_file.read()
-        if image:
+            text_file_content = (await text_file.read()).decode('utf-8')
+        if image and is_vision_model:
             image_content = await image_to_base64(image.url)
         
         prompt = (
             user_prompt,
-            f'The following is the `image` provided by the user: ```{image_content}```' if image_content else '',
+            (f'The following is the `image url` provided by the user: ```{image.url}```' if image and not is_vision_model else ''),
             f'The following is the `url` provided by the user: `{url}`' if url else ''
             f'The following is the `file` provided by the user: ```{text_file_content}```' if text_file_content else ''
         )
 
-        return to_user_message(('\n\n'.join(prompt)).strip())
+        return to_user_message(('\n\n'.join(prompt)).strip(), (image_content if image_content and is_vision_model else None))
+    
+    async def process_input_history(self, history: list = None, is_vision_model: bool = False):
+        '''處理如果content是list，且傳入模型非視覺模型 而造成的錯誤'''
+        if not history: return history
+        if is_vision_model: return history # 是視覺模型的話就不用管他了
+
+        final_history = []
+        for h in history:
+            if h.get('role') == 'user' and isinstance(h.get('content'), list):
+                h = to_user_message(str(h.get('content', [{}])[0].get('text')) + 'system deleted a image')[0]
+            final_history.append(h)
+
+        return final_history
 
     async def chat(
                 self,
@@ -288,7 +305,9 @@ class Chat:
             (f'\n\n<vector_database_search_result_provided_by_user>\n{vector_database}</vector_database_search_result_provided_by_user>' if vector_database else '')
         )
 
-        history += await self.process_user_prompt(prompt, image, text_file, url)
+        history = await self.process_input_history(history)
+
+        history += await self.process_user_prompt(prompt, image, text_file, url, is_vision_model)
 
         async def call():
             resp = await self.client.chat.completions.create(
@@ -308,7 +327,7 @@ class Chat:
 
         call_times = 0
 
-        while call_times < 3: # 3 times to call functions
+        while call_times <= 3: # 3 times to call functions
             think, result, tool_calls, total_tokens = await self.process_completion(completion)
             if tool_calls:
                 await self.process_tool_calls(tool_calls, history)
@@ -316,6 +335,11 @@ class Chat:
                 call_times += 1
             else:
                 break
+
+        if call_times == 3 and not result: # reach limit and tool still return failed
+            is_enable_tools = False
+            completion = await call()
+            think, result, tool_calls, total_tokens = await self.process_completion(completion)
 
         history.append({
             "role": "assistant",

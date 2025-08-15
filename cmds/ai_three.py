@@ -8,7 +8,7 @@ import openai
 
 from qdrant_client.models import Filter, MatchValue, FieldCondition
 
-from core.functions import create_basic_embed, UnixNow, mongo_db_client
+from core.functions import create_basic_embed, UnixNow, mongo_db_client, redis_client
 from core.classes import Cog_Extension
 from core.translator import locale_str, load_translated
 
@@ -49,7 +49,7 @@ class AIChat(Cog_Extension):
         await model.fetch_models()
 
     @commands.hybrid_command(name=locale_str('chat'), description=locale_str('chat'))
-    @app_commands.describe(is_vision_model = locale_str('chat_is_vision_model'))
+    @app_commands.describe(model=locale_str('chat_model'), is_vision_model = locale_str('chat_is_vision_model'))
     @app_commands.autocomplete(
         model = model_autocomplete,
         history = chat_history_autocomplete,
@@ -60,7 +60,7 @@ class AIChat(Cog_Extension):
             self, 
             ctx: commands.Context, 
             prompt: str, 
-            model: str = 'cerebras:gpt-oss-120b', 
+            model: str = None, 
             history: str = None, 
             system_prompt: str = None,
             vector_database_name: str = None,
@@ -103,6 +103,12 @@ class AIChat(Cog_Extension):
 
                 if data:
                     vector_database = vt_process_result(data)
+
+            # keep last model
+            if model:
+                await redis_client.hset('last_model', str(ctx.author.id), model)
+            else:
+                model = (await redis_client.hget('last_model', str(ctx.author.id))) or 'cerebras:gpt-oss-120b'
 
             client = Chat(
                 ctx=ctx,

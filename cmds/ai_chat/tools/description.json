@@ -93,21 +93,6 @@
         {
             "type": "function",
             "function": {
-                "name": "image_read",
-                "description": "這個工具讀取圖片，並取得圖片描述",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "prompt": { "type": "string", "description": "在此輸入使用者提供的需求，如果使用者只是單純傳送了圖片，則在此輸入`描述此圖片`" },
-                        "image_url": { "type": "string", "description": "在此輸入使用者給予的圖片連結" }
-                    },
-                    "required": ["prompt", "image_url"]
-                }
-            }
-        },
-        {
-            "type": "function",
-            "function": {
                 "name": "wiki_search",
                 "description": "This tool is used to search some datas from Wikipedia. Every args should in Chinese.",
                 "parameters": {

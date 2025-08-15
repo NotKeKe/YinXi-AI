@@ -2,12 +2,13 @@ from aiohttp import ClientSession
 from typing import AsyncGenerator
 import logging
 
+from crawl4ai.docker_client import Crawl4aiDockerClient  
 from crawl4ai import BrowserConfig, CrawlerRunConfig  
 from crawl4ai.content_filter_strategy import PruningContentFilter  
 from crawl4ai.markdown_generation_strategy import DefaultMarkdownGenerator  
 from crawl4ai.models import CrawlResult
 
-from core.functions import DEVICE_IP, crawl4ai_client
+from core.functions import DEVICE_IP
 
 NOT_AVAILABLE = 'web_search is not available'
 logger = logging.getLogger(__name__)
@@ -55,7 +56,7 @@ async def web_search(keywords: str, time_range: str = 'year', language: str = 'z
             stream=True
         )  
         
-        async with crawl4ai_client as client:
+        async with Crawl4aiDockerClient(base_url=f"http://{DEVICE_IP}:11235") as client:
             results: AsyncGenerator[CrawlResult] = await client.crawl(  
                 urls,  
                 browser_config=BrowserConfig(headless=True),  
