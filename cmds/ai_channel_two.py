@@ -209,10 +209,33 @@ class AIChannelTwo(Cog_Extension):
                 button_refuse = discord.ui.Button(label=button_refuse_text, style=discord.ButtonStyle.blurple, emoji='❌')
 
                 async def button_check_callback(interaction: discord.Interaction):
+                    await interaction.response.defer()
                     msg = interaction.message
-                    await collection.find_one_and_delete({'channel': ctx.channel.id})
-                    await interaction.response.send_message(await interaction.translate('send_cancel_ai_channel_button_check_success'))
-                    await msg.edit(view=None)
+                    
+                    '''i18n'''
+                    eb = load_translated(await ctx.interaction.translate('embed_cancel_ai_channel_clear_history'))[0]
+                    eb_title = eb.get('title')
+                    ''''''
+                    eb = create_basic_embed('❓' + eb_title)
+
+                    new_view = discord.ui.View()
+                    
+                    async def button_check_callback_two(inter: discord.Interaction):
+                        await collection.find_one_and_delete({'channel': ctx.channel.id})
+                        await db[str(ctx.channel.id)].drop()
+                        await inter.response.send_message(await inter.translate('send_cancel_ai_channel_button_check_success'))
+                        await msg.edit(view=None)
+                    async def button_refuse_callback_two(inter: discord.Interaction):
+                        await collection.find_one_and_delete({'channel': ctx.channel.id})
+                        await inter.response.send_message(await inter.translate('send_cancel_ai_channel_button_check_success'))
+                        await msg.edit(view=None)
+
+                    button_check.callback = button_check_callback_two
+                    button_refuse.callback = button_refuse_callback_two
+                    new_view.add_item(button_check)
+                    new_view.add_item(button_refuse)
+
+                    await msg.edit(embed=eb, view=view)
 
                 async def button_refuse_callback(interaction: discord.Interaction):
                     msg = interaction.message

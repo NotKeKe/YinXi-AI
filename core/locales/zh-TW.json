@@ -781,6 +781,9 @@
         "send_custom_vector_database_upload_invalid_file_format": "目前僅支援 txt(文字檔案)與 md(markdown) 格式的資料窩",
         "send_custom_vector_database_upload_success": "上傳成功! (file: `{filename}`)",
         "send_custom_vector_database_rename_success": "成功將 `{original_name}` 命名為 `{new_name}`",
-        "send_custom_vector_database_delete_success": "成功刪除 `{name}`"
+        "send_custom_vector_database_delete_success": "成功刪除 `{name}`",
+        "embed_cancel_ai_channel_clear_history": [{
+            "title": "是否刪除該 AI 頻道的歷史紀錄？"
+        }]
     }
 }

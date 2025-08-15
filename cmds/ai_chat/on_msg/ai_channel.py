@@ -26,6 +26,10 @@ async def save_history(ctx: commands.Context, history: list):
     try:
         collection = db[str(ctx.channel.id)]
 
+        for h in history:
+            if h.get('tool_calls') or h.get('role', '') == 'tool':
+                history.remove(h)
+
         await collection.update_one(
         filter={"messages": {"$exists": True}},
         update={

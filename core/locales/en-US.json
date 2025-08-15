@@ -780,6 +780,9 @@
         "send_custom_vector_database_upload_invalid_file_format": "Currently, only txt (text file) and md (markdown) data formats are supported.",
         "send_custom_vector_database_upload_success": "Upload successful! (file: `{filename}`)",
         "send_custom_vector_database_rename_success": "Successfully renamed `{original_name}` to `{new_name}`",
-        "send_custom_vector_database_delete_success": "Successfully deleted `{name}`"
+        "send_custom_vector_database_delete_success": "Successfully deleted `{name}`",
+        "embed_cancel_ai_channel_clear_history": [{
+            "title": "Delete history for this AI channel?"
+        }]
     }
 }
