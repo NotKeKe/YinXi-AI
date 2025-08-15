@@ -111,10 +111,10 @@ class AIChannelTwo(Cog_Extension):
         try:
             ctx = await self.bot.get_context(msg)
         
-            db = self.db
-            collection = db[str(ctx.channel.id)]
+            db = MongoDB_DB.aichannel_chat_history
+            collection = db['CHANNELS']
 
-            init_data = await collection.find_one({'_id': 'ai_channel_setting'})
+            init_data = await collection.find_one({'channel': msg.channel.id})
             if not init_data: return
 
             async with ctx.typing():
@@ -133,6 +133,7 @@ class AIChannelTwo(Cog_Extension):
                     if not item: continue
                     msg = await ctx.send(item)
             
+            if msg.author != self.bot.user: return
             view = discord.ui.View()
             await add_history_button(msg, view, complete_history)
             await add_think_button(msg, view, think)
@@ -152,10 +153,10 @@ class AIChannelTwo(Cog_Extension):
     async def set_ai_channel(self, ctx: commands.Context, model: str = None, system_prompt: str = None):
         try:
             async with ctx.typing():
-                db = self.db
-                collection = db[str(ctx.channel.id)]
+                db = MongoDB_DB.aichannel_chat_history
+                collection = db['CHANNELS']
 
-                channel_exist = await collection.find_one({'_id': 'ai_channel_setting'})
+                channel_exist = await collection.find_one({'channel': ctx.channel.id})
 
                 if channel_exist:
                     if model or system_prompt:
@@ -166,13 +167,12 @@ class AIChannelTwo(Cog_Extension):
                         return await ctx.send(await ctx.interaction.translate('send_set_ai_channel_channel_exist'))
                     
                 if model is None:
-                    model = 'qwen-3-32b'
+                    model = 'cerebras:gpt-oss-120b'
 
                 provider, model = split_provider_model(model)
                     
                 await collection.insert_one(
                     {
-                        '_id': 'ai_channel_setting',
                         'provider': provider,
                         'model': model,
                         'channel': ctx.channel.id,
@@ -191,10 +191,10 @@ class AIChannelTwo(Cog_Extension):
     async def cancel_ai_channel(self, ctx: commands.Context):
         try:
             async with ctx.typing():
-                db = self.db
-                collection = db[str(ctx.channel.id)]
+                db = MongoDB_DB.aichannel_chat_history
+                collection = db['CHANNELS']
 
-                if not (await collection.find_one({'_id': 'ai_channel_setting'})):
+                if not (await collection.find_one({'channel': ctx.channel.id})):
                     return await ctx.send(await ctx.interaction.translate('cancel_ai_channel_channel_not_found'))
                 
                 '''i18n'''
@@ -210,7 +210,7 @@ class AIChannelTwo(Cog_Extension):
 
                 async def button_check_callback(interaction: discord.Interaction):
                     msg = interaction.message
-                    await collection.drop()
+                    await collection.find_one_and_delete({'channel': ctx.channel.id})
                     await interaction.response.send_message(await interaction.translate('send_cancel_ai_channel_button_check_success'))
                     await msg.edit(view=None)
 
@@ -236,8 +236,8 @@ class AIChannelTwo(Cog_Extension):
     async def change_ai_channel_model(self, ctx: commands.Context, model: str):
         try:
             async with ctx.typing():
-                db = self.db
-                collection = db[str(ctx.channel.id)]
+                db = MongoDB_DB.aichannel_chat_history
+                collection = db['CHANNELS']
 
                 provider, model = split_provider_model(model)
 
@@ -252,10 +252,10 @@ class AIChannelTwo(Cog_Extension):
                 if not (await check_model()):
                     return await ctx.send(await ctx.interaction.translate('send_change_ai_channel_model_not_available_model'.format(model=model)))
 
-                if not (await collection.find_one({'_id': 'ai_channel_setting'})):
+                if not (await collection.find_one({'channel': ctx.channel.id})):
                     return await ctx.send(await ctx.interaction.translate('send_change_ai_channel_model_channel_not_found'))
                 
-                await collection.update_one({'_id': 'ai_channel_setting'}, {'$set': {'model': model, 'provider': provider}})
+                await collection.update_one({'channel': ctx.channel.id}, {'$set': {'model': model, 'provider': provider}})
                 
                 await ctx.send((await ctx.interaction.translate('send_change_ai_channel_model_successfully_change_model')).format(model=model))
         except:
@@ -266,13 +266,13 @@ class AIChannelTwo(Cog_Extension):
     async def change_ai_channel_system_prompt(self, ctx: commands.Context, system_prompt: str):
         try:
             async with ctx.typing():
-                db = self.db
-                collection = db[str(ctx.channel.id)]
+                db = MongoDB_DB.aichannel_chat_history
+                collection = db['CHANNELS']
 
-                if not (await collection.find_one({'_id': 'ai_channel_setting'})):
+                if not (await collection.find_one({'channel': ctx.channel.id})):
                     return await ctx.send(await ctx.interaction.translate('send_change_ai_channel_system_prompt_channel_not_found'))
                 
-                await collection.update_one({'_id': 'ai_channel_setting'}, {'$set': {'system_prompt': system_prompt.strip()}})
+                await collection.update_one({'channel': ctx.channel.id}, {'$set': {'system_prompt': system_prompt.strip()}})
                 
                 await ctx.send((await ctx.interaction.translate('send_change_ai_channel_system_prompt_successfully_change_system_prompt')).format(system_prompt=system_prompt))
         except:
@@ -282,10 +282,10 @@ class AIChannelTwo(Cog_Extension):
     async def model_show(self, ctx: commands.Context):
         try:
             async with ctx.typing():
-                db = self.db
-                collection = db[str(ctx.channel.id)]
+                db = MongoDB_DB.aichannel_chat_history
+                collection = db['CHANNELS']
 
-                data = await collection.find_one({'_id': 'ai_channel_setting'})
+                data = await collection.find_one({'channel': ctx.channel.id})
                 if not data:
                     return await ctx.send(await ctx.interaction.translate('send_show_ai_channel_model_channel_not_found'))
                 model = data.get('model')

@@ -15,3 +15,4 @@ class MongoDB_DB:
     user_custom_data = mongo_db_client['user_custom_data']
     system_prompt = mongo_db_client['system_prompt']
     user_long_term_memory = mongo_db_client['user_long_term_memory']
+    aichannel_chat_history = mongo_db_client['aichannel_chat_history']

@@ -6,11 +6,12 @@ import logging
 from ..chat.chat import Chat
 from ..utils.config import db_client, base_system_prompt
 
+from core.mongodb_clients import MongoDB_DB
+
 logger = logging.getLogger(__name__)
 
-db_key = 'aichannel_chat_history'
 _id = 'ai_channel_setting'
-db = db_client[db_key]
+db = MongoDB_DB.aichannel_chat_history
 
 async def get_history(ctx: commands.Context) -> list:
     collection = db[str(ctx.channel.id)]

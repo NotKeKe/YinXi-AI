@@ -161,6 +161,20 @@
                     "required": ["userID", "uuid"]
                 }
             }
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "web_fetcher",
+                "description": "此工具用來查詢使用者所提供連結的內文，如果使用者給予了多個連結，可能需要多此調用此function。",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "url": { "type": "string", "description": "在此傳入使用者提供的**單一**url" }
+                    },
+                    "required": ["url"]
+                }
+            }
         }
     ]
 }

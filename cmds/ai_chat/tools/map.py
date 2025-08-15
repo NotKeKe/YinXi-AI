@@ -14,5 +14,6 @@ tools = {
     'image_generate': image_generate,
     'video_generate': video_generate,
     'search_user_long_term_memory': search_user_long_term_memory,
-    'delete_user_long_term_memory': delete_user_long_term_memory
+    'delete_user_long_term_memory': delete_user_long_term_memory,
+    'web_fetcher': web_fetcher
 }

@@ -9,6 +9,7 @@ dependencies = [
     "aiosqlite==0.21.0",
     "beautifulsoup4==4.13.4",
     "chromadb>=1.0.8",
+    "crawl4ai>=0.7.3",
     "deep_translator==1.11.4",
     "discord-py>=2.5.2",
     "fake_useragent==2.1.0",

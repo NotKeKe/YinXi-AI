@@ -319,7 +319,7 @@
             "author": "Command Help",
             "fields": [{
                     "name": "✨ **Features**",
-                    "value": "✨ **Discord Bot combined with AI**\n🗣️ Chat with him without entering commands\n🧠 Upload your own knowledge base\n✍️ Use custom prompts\n🕊️ Enjoy a high degree of freedom in interaction"
+                    "value": "> ✨ **Discord Bot combined with AI**\n> 🗣️ Chat with him without entering commands\n> 🧠 Upload your own knowledge base\n> ✍️ Use custom prompts\n> 🕊️ Enjoy a high degree of freedom in interaction"
                 },
                 {
                     "name": "💬 **Chat**",
