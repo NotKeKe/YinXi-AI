@@ -268,7 +268,7 @@ class AIChannelTwo(Cog_Extension):
     @commands.hybrid_command(name=locale_str('change_ai_channel_model'), description=locale_str('change_ai_channel_model'))
     @commands.has_permissions(administrator=True)
     @app_commands.autocomplete(model=model_autocomplete)
-    async def change_ai_channel_model(self, ctx: commands.Context, model: str):
+    async def change_ai_channel_model(self, ctx: commands.Context, model: str, is_vision_model: bool = False):
         try:
             async with ctx.typing():
                 db = MongoDB_DB.aichannel_chat_history
@@ -290,7 +290,7 @@ class AIChannelTwo(Cog_Extension):
                 if not (await collection.find_one({'channel': ctx.channel.id})):
                     return await ctx.send(await ctx.interaction.translate('send_change_ai_channel_model_channel_not_found'))
                 
-                await collection.update_one({'channel': ctx.channel.id}, {'$set': {'model': model, 'provider': provider}})
+                await collection.update_one({'channel': ctx.channel.id}, {'$set': {'model': model, 'provider': provider, is_vision_model: is_vision_model}})
                 
                 await ctx.send((await ctx.interaction.translate('send_change_ai_channel_model_successfully_change_model')).format(model=model))
         except:
