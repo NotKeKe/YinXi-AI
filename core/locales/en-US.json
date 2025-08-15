@@ -712,7 +712,7 @@
         }],
         "send_change_ai_channel_model_not_available_model": "Model `{model}` is not available.",
         "send_change_ai_channel_model_channel_not_found": "AI channel setting not found.",
-        "send_change_ai_channel_model_successfully_change_model": "Successfully changed model to `{model}`.",
+        "send_change_ai_channel_model_successfully_change_model": "Successfully changed model to `{model}` (is_vision_model: {is_vision_model}).",
         "send_change_ai_channel_system_prompt_channel_not_found": "AI channel setting not found.",
         "send_change_ai_channel_system_prompt_successfully_change_system_prompt": "Successfully changed system prompt to ```{system_prompt}```.",
         "send_show_ai_channel_model_channel_not_found": "AI channel setting not found.",

@@ -285,14 +285,14 @@ class AIChannelTwo(Cog_Extension):
                     return model in models
                 
                 if not (await check_model()):
-                    return await ctx.send(await ctx.interaction.translate('send_change_ai_channel_model_not_available_model'.format(model=model)))
+                    return await ctx.send((await ctx.interaction.translate('send_change_ai_channel_model_not_available_model')).format(model=model))
 
                 if not (await collection.find_one({'channel': ctx.channel.id})):
                     return await ctx.send(await ctx.interaction.translate('send_change_ai_channel_model_channel_not_found'))
                 
-                await collection.update_one({'channel': ctx.channel.id}, {'$set': {'model': model, 'provider': provider, is_vision_model: is_vision_model}})
+                await collection.update_one({'channel': ctx.channel.id}, {'$set': {'model': model, 'provider': provider, 'is_vision_model': is_vision_model}})
                 
-                await ctx.send((await ctx.interaction.translate('send_change_ai_channel_model_successfully_change_model')).format(model=model))
+                await ctx.send((await ctx.interaction.translate('send_change_ai_channel_model_successfully_change_model')).format(model=model, is_vision_model=is_vision_model))
         except:
             logger.error('Error accured at change_ai_channel_model: ', exc_info=True)
 
