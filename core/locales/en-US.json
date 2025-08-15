@@ -89,7 +89,8 @@
         "custom_vector_database_upload": "custom_vector_database_upload",
         "custom_vector_database_search": "custom_vector_database_search",
         "custom_vector_database_delete": "custom_vector_database_delete",
-        "custom_vector_database_rename": "custom_vector_database_rename"
+        "custom_vector_database_rename": "custom_vector_database_rename",
+        "clear_ai_channel_history": "clear_ai_channel_history"
     },
     "description": {
         "translate": "Translate some text",
@@ -181,7 +182,8 @@
         "custom_vector_database_upload": "You can upload your custom knowledge base here and store it as vectors",
         "custom_vector_database_search": "You can use keywords to test what results your search will show",
         "custom_vector_database_delete": "Completely delete one of your custom knowledge bases",
-        "custom_vector_database_rename": "Rename a knowledge base you previously uploaded"
+        "custom_vector_database_rename": "Rename a knowledge base you previously uploaded",
+        "clear_ai_channel_history": "Clear AI chat history (only affects your local database, not the channel)."
     },
     "params_desc": {
         "keep_time": "Enter when you want YinXi to remind you, AI will be used to determine the time",
@@ -784,6 +786,11 @@
         "send_custom_vector_database_delete_success": "Successfully deleted `{name}`",
         "embed_cancel_ai_channel_clear_history": [{
             "title": "Delete history for this AI channel?"
-        }]
+        }],
+        "embed_clear_ai_channel_history": [{
+            "title": "Are you sure you want to delete the history of this AI channel (only Sound AI's database will be deleted, no changes will be made to this channel)?"
+        }],
+        "send_clear_ai_channel_history_success": "Successfully deleted AI channel history",
+        "send_clear_ai_channel_history_cancel": "Operation cancelled"
     }
 }

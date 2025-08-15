@@ -20,10 +20,9 @@ async def get_history(ctx: commands.Context) -> Tuple[list, bool]:
     data = await collection.find_one({"messages": {"$exists": True}})
     meta_data = await db['CHANNELS'].find_one({'channel': ctx.channel.id})
     if data:
-        await ctx.send(meta_data.get('is_vision_model'))
         return data.get('messages', []), meta_data.get('is_vision_model', False)
 
-    return []
+    return [], meta_data.get('is_vision_model', False)
 
 async def save_history(ctx: commands.Context, history: list):
     try:

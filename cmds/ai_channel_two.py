@@ -329,6 +329,44 @@ class AIChannelTwo(Cog_Extension):
         except:
             logger.error('Error accured at show_ai_channel_model: ', exc_info=True)
 
+    @commands.hybrid_command(name=locale_str('clear_ai_channel_history'), description=locale_str('clear_ai_channel_history'))
+    async def clear_ai_channel_history(self, ctx: commands.Context):
+        async with ctx.typing():
+            db = MongoDB_DB.aichannel_chat_history
+            collection = db[str(ctx.channel.id)]
+
+            button_check = discord.ui.Button(label='Yes', style=discord.ButtonStyle.blurple, emoji='✅')
+            button_refuse = discord.ui.Button(label='No', style=discord.ButtonStyle.blurple, emoji='❌')
+
+            async def button_check_callback(inter: discord.Interaction):
+                await inter.response.defer()
+                msg = inter.message
+                await collection.drop()
+                await inter.followup.send(await inter.translate('send_clear_ai_channel_history_success'), ephemeral=True)
+                await msg.edit(view=None)
+            async def button_refuse_callback(inter: discord.Interaction):
+                await inter.response.defer()
+                msg = inter.message
+                await inter.followup.send(await inter.translate('send_clear_ai_channel_history_cancel'), ephemeral=True)
+                await msg.edit(view=None)
+
+
+            button_check.callback = button_check_callback
+            button_refuse.callback = button_refuse_callback
+
+            view = discord.ui.View()
+            view.add_item(button_check)
+            view.add_item(button_refuse)
+
+            '''i18n'''
+            eb = load_translated(await ctx.interaction.translate('embed_clear_ai_channel_history'))[0]
+            eb_title = eb.get('title')
+            ''''''
+
+            eb = create_basic_embed('❓' + eb_title)
+
+            await ctx.send(embed=eb, view=view)
+
     @commands.hybrid_command(name=locale_str('set_chat_human'), description=locale_str('set_chat_human'))
     @commands.has_permissions(administrator=True)
     async def set_chat_human(self, ctx: commands.Context):

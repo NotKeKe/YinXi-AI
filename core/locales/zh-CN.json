@@ -90,7 +90,8 @@
         "custom_vector_database_upload": "自定义向量知识库_上传",
         "custom_vector_database_search": "自定义向量知识库_查询",
         "custom_vector_database_delete": "自定义向量知识库_删除",
-        "custom_vector_database_rename": "向量自定义知识库_改名"
+        "custom_vector_database_rename": "向量自定义知识库_改名",
+        "clear_ai_channel_history": "清除ai频道历史纪录"
     },
     "description": {
         "translate": "翻译一些文字",
@@ -183,7 +184,8 @@
         "custom_vector_database_upload": "在这里可以上传你的自定义知识库，并以向量做存储",
         "custom_vector_database_search": "可以使用关键字测试你的搜寻会出现什么结果",
         "custom_vector_database_delete": "将你自定义的某个知识库完全删除",
-        "custom_vector_database_rename": "改你之前上传的知识库的名称"
+        "custom_vector_database_rename": "改你之前上传的知识库的名称",
+        "clear_ai_channel_history": "清除ai频道历史纪录，不会对这个频道造成任何影响，只会更改我这里的数据库"
     },
     "params_desc": {
         "keep_time": "输入你要音汐什么时候提醒，会用AI判断时间",
@@ -791,6 +793,11 @@
         "send_custom_vector_database_delete_success": "成功删除 `{name}`",
         "embed_cancel_ai_channel_clear_history": [{
             "title": "是否删除该 AI 频道的历史纪录？"
-        }]
+        }],
+        "embed_clear_ai_channel_history": [{
+            "title": "确定要删除这个 AI 频道的历史纪录吗 (只会删除音汐AI的数据库，不会对这个频道做任何事)"
+        }],
+        "send_clear_ai_channel_history_success": "成功删除 AI 频道历史纪录",
+        "send_clear_ai_channel_history_cancel": "已取消操作"
     }
 }
