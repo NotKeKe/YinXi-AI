@@ -68,7 +68,7 @@ class AIChannelTwo(Cog_Extension):
     async def on_msg_chat_human(self, msg: discord.Message):
         if not msg.content and not msg.attachments: return
         if msg.author.bot: return
-        if msg.content.startswith('[') or msg.content.startswith('[! '): return
+        if msg.content.startswith(']') or msg.content.startswith(']! '): return
 
         try:
             ctx = await self.bot.get_context(msg)
@@ -397,7 +397,7 @@ class AIChannelTwo(Cog_Extension):
     async def cancel_chat_human(self, ctx: commands.Context):
         try:
             async with ctx.typing():
-                db = self.db
+                db = MongoDB_DB.chat_human_setting
                 collection = db[str(ctx.channel.id)]
 
                 if not (await collection.find_one({'_id': 'chat_human_setting'})):

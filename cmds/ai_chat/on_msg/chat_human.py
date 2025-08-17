@@ -3,9 +3,11 @@ import asyncio
 from typing import Tuple
 
 from ..chat.chat import Chat
-from ..utils.config import chat_human_system_prompt
+from ..utils.prompt import get_single_default_system_prompt
 
-model = 'cerebras:qwen-3-235b-a22b-instruct-2507'
+from core.mongodb_clients import MongoDB_DB
+
+model = 'lmstudio:qwen3-8b'
 
 async def get_example_response(user_prompt: str) -> str:
     # TODO
@@ -18,7 +20,11 @@ async def get_example_response(user_prompt: str) -> str:
 )
 
 async def chat_human_chat(ctx: commands.Context, prompt: str, history: list, urls: list = None) -> Tuple[str, str]:
-    client = Chat(model, chat_human_system_prompt + (await get_example_response(prompt)), ctx)
+    client = Chat(
+        model=model, 
+        system_prompt=(await get_single_default_system_prompt(MongoDB_DB.system_prompt['default'], 'chat_human')) + (await get_example_response(prompt)), 
+        ctx=ctx
+    )
 
     think, result, complete_history = await client.chat(
         prompt, 
