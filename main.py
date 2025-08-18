@@ -111,10 +111,16 @@ async def main():
         print(f'開啟共花費了: {math_round(time.time() - start_time, 2)}')
         await bot.start(TOKEN)
 
+async def cleanup():
+    from core.functions import mongo_db_client
+    if mongo_db_client:
+        mongo_db_client.close()
+        
+    from core.chat_human.manage_browser import close_browser
+    await close_browser()
+
 if __name__ == '__main__':
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        from core.functions import mongo_db_client
-        if mongo_db_client:
-            mongo_db_client.close()
+        asyncio.run(cleanup())

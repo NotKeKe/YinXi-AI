@@ -42,7 +42,10 @@ def split_provider_model(provider_and_model: str) -> Tuple[str, str]:
 
 
 async def model_select(original_model: str) -> Union[AsyncOpenAI, None]:
-    provider, model = original_model.split(":", 1)
+    try:
+        provider, model = original_model.split(":", 1)
+    except:
+        return logger.error(f'Cannot split model: `{original_model}`')
 
     logger.info(f'Got {provider=}, {model=}, {original_model=}')
 

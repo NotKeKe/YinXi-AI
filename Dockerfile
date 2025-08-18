@@ -8,6 +8,10 @@ COPY pyproject.toml ./
 RUN ln -sf /usr/share/zoneinfo/Asia/Taipei /etc/localtime \
     && echo "Asia/Taipei" > /etc/timezone \
     && pip install uv --no-cache-dir \
-    && uv sync
+    && uv sync \
+    && ./.venv/bin/python -m playwright install \
+    && ./.venv/bin/python -m playwright install-deps \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY . .

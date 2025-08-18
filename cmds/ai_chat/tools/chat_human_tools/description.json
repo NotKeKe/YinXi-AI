@@ -1,0 +1,156 @@
+[{
+        "type": "function",
+        "function": {
+            "name": "get_web_elements",
+            "description": "此工具用來獲取某個網頁上所有可點擊按鈕",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "url": { "type": "string", "description": "單一網頁連結" }
+                },
+                "required": ["url"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "close_page",
+            "description": "此工具用來關閉你之前開啟的網頁(需提供uuid)，確保你在每次使用完網頁後，都調用此工具",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "uuid": { "type": "string", "description": "先前使用goto_page所獲得的uuid" }
+                },
+                "required": ["uuid"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "goto_page",
+            "description": "此工具用來開啟一個網頁，並獲得該page的uuid (用於之後調用其他工具)",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "url": { "type": "string", "description": "單一網頁連結" }
+                },
+                "required": ["url"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "call_keke",
+            "description": "此工具用來聯繫你的創造者(及 `克克KeJC`)，在你有任何問題，或者希望新增什麼功能時，都可以使用此工具聯繫他。",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": { "type": "string", "description": "在使輸入你要對克克說什麼話" }
+                },
+                "required": ["query"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "read_file",
+            "description": "此工具用來閱讀某個某個已知路徑的本地檔案",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "path": { "type": "string", "description": "在使輸入檔案的路徑" }
+                },
+                "required": ["path"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "add_system_prompt",
+            "description": "此工具用於調整提示詞，你可以在提示詞內部加上任何有意義的文字，包括但不限於性格、說話風格。",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "system_prompt": { "type": "string", "description": "在使輸入你要修改的提示詞 (將會覆蓋原先的提示詞)" }
+                },
+                "required": ["system_prompt"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "add_user_prompt",
+            "description": "此工具用於模擬使用者的提示詞，讓你可以繼續執行下一個步驟",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "user_prompt": { "type": "string", "description": "在使輸入你要對克克說什麼話" }
+                },
+                "required": ["user_prompt"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "send_to_channel",
+            "description": "此工具用來在某個discord頻道傳送訊息，必須先知道頻道的ID",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "text": { "type": "string", "description": "在使輸入你要對這個頻道的人說什麼話" },
+                    "channelID": { "type": "integer", "description": "在此輸入頻道ID" }
+                },
+                "required": ["text", "channelID"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "self_database_save",
+            "description": "此工具用來將你查到的，或者是任何你看到的事情存起來，以後可以使用self_database_search來查詢",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "text": { "type": "string", "description": "在此輸入你要儲存的事情" }
+                },
+                "required": ["text"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "self_database_search",
+            "description": "此工具用來查詢你以前搜尋到的資訊，或者你以前認為任何需要記得的事情",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": { "type": "string", "description": "在此輸入搜尋關鍵字" },
+                    "num": { "type": "integer", "description": "在此輸入要獲得幾個結果，預設為3個" }
+
+                },
+                "required": ["query", "num"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "stop_task",
+            "description": "此工具用來停止當前的任務，在你需要休息時 請調用此工具",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
+    }
+]

@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from typing import Tuple, Union
+from typing import Tuple, Union, List, Dict, Callable, Awaitable, Any
 from typing import AsyncGenerator
 from openai.types.chat import ChatCompletionChunk, ChatCompletion, ChatCompletionMessage
 import orjson
@@ -170,7 +170,7 @@ class Chat:
         return think, result, tool_calls, total_tokens
 
     
-    async def process_tool_calls(self, tool_calls: list, history: list):
+    async def process_tool_calls(self, tool_calls: list, history: list, custom_tools: Dict[str, Callable[..., Union[Any, Awaitable[Any]]]] = None, include_original_tools: bool = False):
         '''Love gemini :>
         call function and add result to history
         '''
@@ -196,7 +196,7 @@ class Chat:
             function_response = "Error: An unknown error occurred."
 
             try:
-                function_to_call = tool_map.get(function_name)
+                function_to_call = (({**custom_tools, **tool_map} if include_original_tools else custom_tools) or tool_map).get(function_name)
                 if not function_to_call:
                     history.append(
                         {
@@ -225,6 +225,7 @@ class Chat:
                 function_response = f"Error: An unexpected error occurred while calling '{function_name}'. Details: {e}"
             
             # 4. 將結果添加到歷史記錄
+            logger.info(f'`{self.model}` called `{function_name}` ({function_args})')
             history.append(
                 {
                     "tool_call_id": tool_call_id,
@@ -272,9 +273,15 @@ class Chat:
                 temperature: float = 1.0,
                 history: list = None,
                 max_tokens: int = None,
-                is_enable_tools: bool = True,
                 top_p: float = 1.0,
+
+                is_enable_tools: bool = True,
                 delete_tools: Union[str, list] = None,
+                custom_tool_description: List[Dict[str, Union[str, Dict[str, Union[str, Dict[str, Union[str, Dict[str, Dict[str, str]], List[str]]]]]]]] = None,
+                custom_tools: Dict[str, Callable[..., Union[Any, Awaitable[Any]]]] = None,
+                include_original_tools: bool = False,
+                tool_call_times: int = 3,
+
                 timeout: float = None,
                 url: list = None,
                 image: discord.Attachment = None,
@@ -283,10 +290,11 @@ class Chat:
                 tool_choice: str = None,
                 vector_database: list[str] = None
             ) -> Tuple[str, str, list]:
-        if model:
-            await self.re_model(model)
-        else:
-            self.client = await model_select(self.model)
+        if not self.client:
+            if model:
+                await self.re_model(model)
+            else:
+                self.client = await model_select(self.model)
 
         if not history: history = []
 
@@ -318,7 +326,17 @@ class Chat:
                 top_p=top_p,
                 stream=False,
                 timeout=timeout,
-                tools=self.process_tool_decrip(delete_tools) if is_enable_tools else None,
+                tools=((
+                            custom_tool_description + self.process_tool_decrip(delete_tools)
+                            if include_original_tools 
+                            else custom_tool_description
+                        ) 
+                        or 
+                        (
+                            self.process_tool_decrip(delete_tools)
+                            if is_enable_tools 
+                            else None
+                        )),
                 tool_choice=tool_choice if tool_choice else ('auto' if is_enable_tools else None) 
             )
             return resp
@@ -327,16 +345,16 @@ class Chat:
 
         call_times = 0
 
-        while call_times <= 3: # 3 times to call functions
+        while call_times < tool_call_times: # 3 times to call functions
             think, result, tool_calls, total_tokens = await self.process_completion(completion)
             if tool_calls:
-                await self.process_tool_calls(tool_calls, history)
+                await self.process_tool_calls(tool_calls, history, custom_tools, include_original_tools)
                 completion = await call()
                 call_times += 1
             else:
                 break
 
-        if call_times == 3 and not result: # reach limit and tool still return failed
+        if call_times == tool_call_times and not result: # reach limit and tool still return failed
             is_enable_tools = False
             completion = await call()
             think, result, tool_calls, total_tokens = await self.process_completion(completion)
@@ -347,8 +365,9 @@ class Chat:
             **({'reasoning': think.strip()} if think else {})
         })
 
-        if provider.lower() in ('ollama', 'lmstudio', 'cerebras') and total_tokens >= 30000: await self.summarize_history(history)
-        elif total_tokens > 62000: await self.summarize_history(history)
+        if provider.lower() in ('ollama', 'lmstudio') and total_tokens >= 10000: await self.summarize_history(history)
+        elif provider.lower() in ('lmstudio', 'cerebras') and total_tokens >= 30000: await self.summarize_history(history)
+        elif total_tokens > 62000: history = await self.summarize_history(history)
 
         def replace_backticks_in_parentheses(s):
             '''replace "`" to "´", 避免顏文字影響 discord 輸出'''
@@ -377,4 +396,5 @@ class Chat:
             top_p=0.5
         )
 
-        history = to_user_message(f'# 以下是針對先前的對話總結 (總結時間: {current_time()}):\n```{result}```')
+        new_history = to_user_message(f'# 以下是針對先前的對話總結 (總結時間: {current_time()}):\n```{result}```')
+        return new_history

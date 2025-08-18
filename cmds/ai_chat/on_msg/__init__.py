@@ -4,6 +4,7 @@ from .ai_channel import (
 )
 from .chat_human import (
     chat_human_chat,
+    keep_think
 )
 
-__all__ = ['ai_channel_chat', 'chat_human_chat', 'ai_channel_get_history']
+__all__ = ['ai_channel_chat', 'chat_human_chat', 'ai_channel_get_history', 'keep_think']

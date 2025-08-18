@@ -7,8 +7,7 @@ from core.translator import locale_str
 from cmds.ai_chat.chat.translate import translate
 
 class Translator(Cog_Extension):
-    @commands.Cog.listener()
-    async def on_ready(self):
+    async def cog_load(self):
         print(f'已載入「{__name__}」')
 
     @commands.hybrid_command(name=locale_str('translate'), description=locale_str('translate'))

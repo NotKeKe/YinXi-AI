@@ -6,19 +6,20 @@ import openai
 import orjson
 import asyncio
 
-from core.functions import create_basic_embed, current_time, get_attachment, split_str_by_len_and_backtick, UnixNow, redis_client
+from core.functions import create_basic_embed, current_time, get_attachment, split_str_by_len_and_backtick, UnixNow, redis_client, is_KeJC
 from core.classes import Cog_Extension, get_bot
 from core.translator import locale_str, load_translated
 
 from core.mongodb_clients import MongoDB_DB
 
-from cmds.ai_chat.on_msg import ai_channel_chat, chat_human_chat
+from cmds.ai_chat.on_msg import ai_channel_chat, chat_human_chat, keep_think
 from cmds.ai_chat.utils import model_autocomplete, to_user_message, to_assistant_message, add_think_button, add_history_button, split_provider_model
 
 logger = logging.getLogger(__name__)
 
 # db = db_client['aichannel_chat_history']
 db_key = 'aichannel_chat_history'
+aichanneltwo = None
 
 async def to_history(channel: discord.TextChannel, limit: int = 10):
     histories = []
@@ -59,14 +60,39 @@ class AIChannelTwo(Cog_Extension):
         self.db = MongoDB_DB.aichat_chat_history
 
         self.chat_human_tasks: dict[int, asyncio.Task] = {}
+        self.keep_think_task: asyncio.Task = None
 
     async def cog_load(self):
         print(f'已載入{__name__}')
+        self.keep_think_task = asyncio.create_task(keep_think())
+
+    @commands.command()
+    async def keep_think_start(self, ctx):
+        if self.keep_think_task:
+            return await ctx.send('False')
+        
+        self.keep_think_task = asyncio.create_task(keep_think())
+        await ctx.send('True')
+
+    @commands.command()
+    async def keep_think_stop(self, ctx):
+        if self.keep_think_task:
+            self.keep_think_task.cancel()
+            self.keep_think_task = None
+            await ctx.send('True')
+        else:
+            await ctx.send('No task')
 
     @commands.Cog.listener()
     async def on_message(self, msg: discord.Message):
         await self.on_msg_ai_channel(msg)
-        await self.on_msg_chat_human(msg)
+        await self.on_keke_send(msg)
+        # await self.on_msg_chat_human(msg)
+
+    async def on_keke_send(self, msg: discord.Message):
+        if not is_KeJC(msg.author.id): return
+        if msg.guild: return
+        await redis_client.set('keke_send_message', msg.content)
 
     async def on_msg_chat_human(self, msg: discord.Message):
         if not msg.content and not msg.attachments: return
@@ -453,4 +479,6 @@ class AIChannelTwo(Cog_Extension):
             logger.error('Error accured at cancel_chat_human', exc_info=True)
 
 async def setup(bot):
-    await bot.add_cog(AIChannelTwo(bot))
+    global aichanneltwo
+    aichanneltwo = AIChannelTwo(bot)
+    await bot.add_cog(aichanneltwo)
