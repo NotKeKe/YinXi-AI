@@ -4,6 +4,7 @@ from discord.ext import commands, tasks
 from datetime import datetime
 import uuid
 import orjson
+import logging
 from qdrant_client.models import Filter, MatchValue, FieldCondition, ScrollResult
 
 from core.classes import Cog_Extension
@@ -21,6 +22,8 @@ from cmds.vector.utils.config import (
 from cmds.vector.utils import check_alive, semantic_split
 from cmds.vector.utils.autocomplete import *
 
+logger = logging.getLogger(__name__)
+
 class VectorData(Cog_Extension):
     def __init__(self, bot):
         super().__init__(bot)
@@ -29,6 +32,48 @@ class VectorData(Cog_Extension):
         print(f'已載入「{__name__}」')
         self.ollama_check_alive.start()
         await vector_connection()
+
+    @commands.Cog.listener()
+    async def on_message(self, msg: discord.Message):
+        await self.on_msg_chat_human_embedding(msg)
+
+    async def on_msg_chat_human_embedding(self, msg: discord.Message):
+        if not msg.content: return
+        if msg.author.bot and msg.author != self.bot.user: return
+        if msg.content.startswith(']') or msg.content.startswith(']! '): return
+        if len(msg.content) <= 2: return
+
+        # to check whether the channel is a chat_human channel (if not in DM). Always do embed for DM.
+        if msg.guild:
+            db = MongoDB_DB.chat_human_setting
+            collection = db[str(msg.channel.id)]
+
+            init_data = await collection.find_one({'_id': 'chat_human_setting'})
+            if not init_data: return
+
+        name = 'chat_human_embedding'
+        key = str(msg.channel.id)
+
+        ls_msgs = await redis_client.hget(name, str(msg.channel.id))
+        set_item = [{'userID': str(msg.author.id), 'userName': str(msg.author.name), 'text': msg.content}]
+
+        if not ls_msgs: 
+            dump_item = set_item
+        else:
+            ls_msgs = orjson.loads(ls_msgs)
+            if len(ls_msgs) >= 10:
+                await upsert(
+                    [{'userID': int(item.get('userID', 0)), 'userName': str(item.get('userName', '')), 'text': item.get('text', '')} for item in ls_msgs],
+                    QdrantCollectionName.chat_human_history
+                )
+                await redis_client.hdel(name, key)
+                logger.info(f'Add {len(ls_msgs)} items to Qdrant')
+                dump_item = set_item
+            else:
+                dump_item = ls_msgs + set_item
+
+        await redis_client.hset(name, key, orjson.dumps(dump_item).decode())
+        logger.info(f'Add {len(dump_item)} items to Redis')
 
     @app_commands.command(name='向量測試搜尋')
     @app_commands.guilds(discord.Object(id=testing_guildID))

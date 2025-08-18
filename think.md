@@ -11,3 +11,19 @@
 
 ## MongoDB
 *   聊天紀錄
+
+## 本地模型使用
+1. 生成標題: lmstudio **(qwen3 0.6b chat)**
+2. 取得使用者資訊的 embedding : lmstudio **(qwen3 0.6b embedding)**
+3. chat_human : lmstudio **(unsloth/deepseek-r1-0528-qwen3-8b)**
+4. long term memory: self_ollama **(qwen3 0.6b chat)**
+*   chat_human 過程
+    *   => 呼叫 2.
+    *   => 呼叫 3.
+    *   => 呼叫 4.
+        *   True: 同 2.
+*   /chat 過程
+    *   => 呼叫 2.
+    *   => normal chat
+    *   => 呼叫 4. (with 1.)
+    *   => 呼叫 1. (with 4.)

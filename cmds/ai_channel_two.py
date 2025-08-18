@@ -4,6 +4,7 @@ from discord.ext import commands
 import logging
 import openai
 import orjson
+import asyncio
 
 from core.functions import create_basic_embed, current_time, get_attachment, split_str_by_len_and_backtick, UnixNow, redis_client
 from core.classes import Cog_Extension, get_bot
@@ -50,12 +51,14 @@ async def to_history(channel: discord.TextChannel, limit: int = 10):
                 histories.extend(to_user_message('\n\n'.join(msg)))
             pre = 'user'
 
-    return histories[-6:]
+    return histories[-(limit):]
 
 class AIChannelTwo(Cog_Extension):
     def __init__(self, bot):
         super().__init__(bot)
         self.db = MongoDB_DB.aichat_chat_history
+
+        self.chat_human_tasks: dict[int, asyncio.Task] = {}
 
     async def cog_load(self):
         print(f'已載入{__name__}')
@@ -79,23 +82,36 @@ class AIChannelTwo(Cog_Extension):
 
                 init_data = await collection.find_one({'_id': 'chat_human_setting'})
                 if not init_data: return
+            
+            if msg.channel.id in self.chat_human_tasks:
+                self.chat_human_tasks[msg.channel.id].cancel()
 
-            async with ctx.typing():
-                urls = get_attachment(msg)
+            async def run_task(ctx: commands.Context, msg: discord.Message) -> tuple[discord.Message, str]:
+                async with ctx.typing():
+                    urls = get_attachment(msg)
 
-                think, result = await chat_human_chat(ctx, msg.content, (await to_history(msg.channel)), urls)
+                    think, result = await chat_human_chat(ctx, msg.content, (await to_history(msg.channel)), urls)
 
-                ls = result.split('。')
+                    ls = result.split('。')
 
-                for item in ls:
-                    if not item: continue
-                    msg = await ctx.send(item)
+                    for item in ls:
+                        if not item: continue
+                        msg = await ctx.send(item)
+                return msg, think
+            
+            try:
+                task = asyncio.create_task(run_task(ctx, msg))
+                self.chat_human_tasks[msg.channel.id] = task
 
-            view = discord.ui.View()
-            await add_think_button(msg, view, think)
+                msg, think = await task
 
-            timeout = await view.wait()
-            if timeout: await msg.edit(view=None)
+                view = discord.ui.View()
+                await add_think_button(msg, view, think)
+
+                timeout = await view.wait()
+                if timeout: await msg.edit(view=None)
+            except asyncio.CancelledError:
+                ...
         except openai.BadRequestError as e:
             logger.error('Error accured at on_msg_chat_human', exc_info=True)
             await ctx.send(f'Error accured :<\n{str(e)}', ephemeral=True)

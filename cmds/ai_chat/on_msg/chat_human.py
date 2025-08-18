@@ -7,7 +7,7 @@ from ..utils.prompt import get_single_default_system_prompt
 
 from core.mongodb_clients import MongoDB_DB
 
-model = 'lmstudio:qwen3-8b'
+model = 'lmstudio:unsloth/deepseek-r1-0528-qwen3-8b'
 
 async def get_example_response(user_prompt: str) -> str:
     # TODO
