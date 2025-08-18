@@ -27,3 +27,15 @@
     *   => normal chat
     *   => 呼叫 4. (with 1.)
     *   => 呼叫 1. (with 4.)
+
+## keep_think
+*   現在預計擁有3個mode，他可以自己使用工具切換 (20250819)
+    *   預計要分別設計3個提示詞
+    *   **Question**
+        1. 要怎麽讓他決定在 chat mode 下，應該在哪個頻道講話 <- Should be a must hard issue
+            > 獲得全部 chat_human / DM 頻道的訊息讓他選擇?
+        2. 要使用工具切換成 resting mode ，還是使用原先的 task_stop 工具切換
+            > 預計刪除 task_stop，但音汐要怎麼決定休息多久?
+        3. 在這3個mode之中，會有多少需要重複使用的東西? 需要將他們移出來。
+    *   **Think**
+        *   每次開始前，先決定 mode 切換

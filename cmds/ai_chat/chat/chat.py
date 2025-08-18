@@ -348,6 +348,7 @@ class Chat:
         while call_times < tool_call_times: # 3 times to call functions
             think, result, tool_calls, total_tokens = await self.process_completion(completion)
             if tool_calls:
+                if provider.lower() == 'lmstudio': await asyncio.sleep(1)
                 await self.process_tool_calls(tool_calls, history, custom_tools, include_original_tools)
                 completion = await call()
                 call_times += 1

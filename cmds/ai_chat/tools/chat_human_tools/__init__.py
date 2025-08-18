@@ -15,5 +15,6 @@ __all__ = [
     'send_to_channel',
     'self_database_save',
     'self_database_search',
-    'stop_task'
+    'stop_task',
+    'switch_mode'
 ]

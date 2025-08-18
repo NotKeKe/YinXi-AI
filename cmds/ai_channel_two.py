@@ -12,7 +12,7 @@ from core.translator import locale_str, load_translated
 
 from core.mongodb_clients import MongoDB_DB
 
-from cmds.ai_chat.on_msg import ai_channel_chat, chat_human_chat, keep_think
+from cmds.ai_chat.on_msg import ai_channel_chat, chat_human_chat, chat_human
 from cmds.ai_chat.utils import model_autocomplete, to_user_message, to_assistant_message, add_think_button, add_history_button, split_provider_model
 
 logger = logging.getLogger(__name__)
@@ -64,14 +64,14 @@ class AIChannelTwo(Cog_Extension):
 
     async def cog_load(self):
         print(f'已載入{__name__}')
-        self.keep_think_task = asyncio.create_task(keep_think())
+        self.keep_think_task = asyncio.create_task(chat_human.self_growth.run())
 
     @commands.command()
     async def keep_think_start(self, ctx):
         if self.keep_think_task:
             return await ctx.send('False')
         
-        self.keep_think_task = asyncio.create_task(keep_think())
+        self.keep_think_task = asyncio.create_task(chat_human.self_growth.run())
         await ctx.send('True')
 
     @commands.command()

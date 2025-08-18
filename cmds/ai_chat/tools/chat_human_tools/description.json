@@ -152,5 +152,19 @@
                 "required": []
             }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "switch_mode",
+            "description": "此工具用來切換當前的mode，在每個mode下會有不同的任務要執行",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "mode": { "type": "string", "description": "在此輸入要切換的模式，目前僅支援 ['learning', 'chatting', 'resting']" }
+                },
+                "required": []
+            }
+        }
     }
 ]
