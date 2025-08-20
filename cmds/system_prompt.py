@@ -79,11 +79,10 @@ class SystemPrompt(Cog_Extension):
 
         name = file.filename.split('.')[0]
 
-        from core.functions import mongo_db_client
         content = (await file.read()).decode('utf-8')
         client = mongo_db_client['system_prompt']['default']
 
-        await client.insert_one({'name': name, 'prompt': content.strip()})
+        await client.find_one_and_update({'name': name}, {'$set': {'prompt': content.strip()}}, upsert=True)
 
         await inter.followup.send('success')
 

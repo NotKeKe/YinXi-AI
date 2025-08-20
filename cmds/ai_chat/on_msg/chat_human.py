@@ -87,8 +87,8 @@ class SelfGrowth:
 
                 keke_send = await redis_client.get('keke_send_message')
                 current_user_prompt = await get_current_user_prompt(self.mode)
-                prompt = f'{current_user_prompt}\n{f'克克KeJC(管理員)進行了回覆:\n  ```{keke_send}```' if keke_send else ''}'
-                system_prompt = f'已從 `{self.pre_mode}` 改為 `{self.mode}`' + (await get_single_default_system_prompt('self_growth_' + self.system_prompt_map.get(self.mode, 'learning'))) + (await get_current_system_prompt())
+                prompt = f"{f'克克KeJC(管理員)進行了回覆(請使用 call_keke 回覆你已經讀了這則訊息，並添加其他敘述(如果有需要)):\n  ```{keke_send}```' if keke_send else ''}\n{current_user_prompt}"
+                system_prompt = f'已從 `{self.pre_mode}` 改為 `{self.mode}`' + (await get_single_default_system_prompt(self.system_prompt_map.get(self.mode, 'self_growth_learning'))) + (await get_current_system_prompt())
 
                 await self.mode_map[self.mode](client, prompt, system_prompt)
 
@@ -99,7 +99,8 @@ class SelfGrowth:
                     self.history = await client.summarize_history(self.history)
 
                 await self.collection.update_one({'message': {'$exists': True}}, {'$set': {'message': self.history}}, upsert=True)
-                await redis_client.delete('keke_send_message')
+                if keke_send:
+                    await redis_client.delete('keke_send_message')
             except asyncio.CancelledError:
                 return logger.info('已取消 SelfGrowth')
             except:

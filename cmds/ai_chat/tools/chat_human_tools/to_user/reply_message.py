@@ -6,11 +6,11 @@ import orjson
 from core.classes import get_bot
 from core.functions import redis_client
 
-async def delete_replied_msg(data: dict[int, list[dict[str, Any]]], channel: discord.TextChannel, msg: discord.Message):
+async def delete_replied_msg(data: dict[str, list[dict[str, Any]]], channel: discord.TextChannel, msg: discord.Message):
     def find():
-        for item in data[channel.id]:
+        for item in data[str(channel.id)]:
             if item.get('msgID') == msg.id:
-                data[channel.id].remove(item)
+                data[str(channel.id)].remove(item)
                 break
         return data
     data = await asyncio.to_thread(find)

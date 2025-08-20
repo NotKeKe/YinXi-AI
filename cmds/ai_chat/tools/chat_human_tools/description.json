@@ -191,7 +191,7 @@
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "channelID": { "type": "integer", "description": "在此完整的輸入頻道ID" },
+                    "channelID": { "type": "string", "description": "在此完整的輸入頻道ID" },
                     "msgID": { "type": "integer", "description": "在此輸入訊息ID" }
                 },
                 "required": ["channelID", "msgID"]

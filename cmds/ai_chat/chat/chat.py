@@ -7,6 +7,7 @@ import orjson
 import logging
 import re
 import asyncio
+from openai import BadRequestError
 
 from ..utils import model_select, to_system_message, to_user_message, get_think, clean_text, split_provider_model
 from ..utils.config import base_system_prompt, summarize_history_system_prompt
@@ -206,11 +207,18 @@ class Chat:
                             "content": f"Function '{function_name}' not found in tool map."
                         }
                     )
-                    return 
+                    continue
 
-                function_args = orjson.loads(tool_call['arguments'])
-                if not isinstance(function_args, dict):
-                    raise TypeError("Function arguments must be a dictionary.")
+                try:
+                    function_args = orjson.loads(tool_call['arguments'])
+                    if not isinstance(function_args, dict):
+                        function_response = f"Error: Function arguments must be a dictionary, got {type(function_args)}"
+                        continue
+                except orjson.JSONDecodeError as e:
+                    function_response = f"Error: Invalid JSON arguments for '{function_name}': {e}"
+                    continue
+
+                logger.info(f'`{self.model}` called `{function_name}` ({function_args})')
 
                 if is_async(function_to_call):
                     function_response = await function_to_call(**function_args)
@@ -225,7 +233,6 @@ class Chat:
                 function_response = f"Error: An unexpected error occurred while calling '{function_name}'. Details: {e}"
             
             # 4. 將結果添加到歷史記錄
-            logger.info(f'`{self.model}` called `{function_name}` ({function_args})')
             history.append(
                 {
                     "tool_call_id": tool_call_id,
@@ -340,8 +347,13 @@ class Chat:
                 tool_choice=tool_choice if tool_choice else ('auto' if is_enable_tools else None) 
             )
             return resp
-        
-        completion = await call()
+        try:
+            completion = await call()
+        except BadRequestError as e:
+            if "Model unloaded" in str(e):
+                return '', 'Model unloaded, please try again later', history
+            else:
+                raise
 
         call_times = 0
 
@@ -384,11 +396,20 @@ class Chat:
         for h in history:
             role = h.get('role', '')
             content = h.get('content', '')
+            tool_calls = h.get('tool_calls', [])
+            
 
             if role == 'user':
                 ls_prompt.append(f'User: 「{content})」')
             elif role == 'assistant' and content:
                 ls_prompt.append(f'Assistant: 「{content}」')
+            elif role == 'assistant' and tool_calls:
+                if tool_calls:
+                    for t in tool_calls:
+                        function = t.get('function', {})
+                        name = function.get('name')
+                        args = function.get('arguments')
+                        ls_prompt.append(f'Assistant called a tool: {name}({args})')
 
         think, result, history = await self.chat(
             prompt='\n'.join(ls_prompt),

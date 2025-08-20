@@ -64,7 +64,7 @@ class AIChannelTwo(Cog_Extension):
 
     async def cog_load(self):
         print(f'已載入{__name__}')
-        self.keep_think_task = asyncio.create_task(chat_human.self_growth.run())
+        # self.keep_think_task = asyncio.create_task(chat_human.self_growth.run())
 
     @commands.command()
     async def keep_think_start(self, ctx):
@@ -100,8 +100,8 @@ class AIChannelTwo(Cog_Extension):
         if msg.author.bot: return
         if msg.content.startswith(']') or msg.content.startswith(']! '): return
 
-        data = (await redis_client.get('chat_human_sent_msgs')) or {}
-        data: dict[int, list[dict[int, str]]] = orjson.loads(data)
+        data = (await redis_client.get('chat_human_sent_msgs')) or '{}'
+        data: dict[str, list[dict[str, str]]] = orjson.loads(data)
         '''
         {
             channelID: [
@@ -116,7 +116,7 @@ class AIChannelTwo(Cog_Extension):
             ]    
         }
         '''
-        data_channel: list = data.get(msg.channel.id, [])
+        data_channel: list = data.get(str(msg.channel.id), [])
         replied_msg = (msg.reference.cached_message or (await (self.bot.get_channel(msg.reference.channel_id)).fetch_message(msg.reference.message_id))) if msg.reference else None
         data_channel.append(
             {
@@ -128,7 +128,7 @@ class AIChannelTwo(Cog_Extension):
                 **({'reply_message': {'msgID': replied_msg.id, 'content': replied_msg.content, 'author': replied_msg.author.name, 'time': msg.created_at.strftime('%Y-%m-%d %H:%M:%S')}} if replied_msg else {})
             }
         )
-        data[msg.channel.id] = data_channel
+        data[str(msg.channel.id)] = data_channel
         await redis_client.set('chat_human_sent_msgs', orjson.dumps(data, option=orjson.OPT_INDENT_2).decode())
 
     async def on_msg_chat_human(self, msg: discord.Message):
