@@ -11,5 +11,8 @@ map = {
     'send_to_channel': send_to_channel,
     'self_database_save': self_database_save,
     'self_database_search': self_database_search,
-    'stop_task': stop_task
+    'reply_message': reply_message,
+    'get_havent_reply_msgs': get_havent_reply_msgs,
+    'ignore_msg': ignore_msg,
+    'switch_mode': switch_mode
 }

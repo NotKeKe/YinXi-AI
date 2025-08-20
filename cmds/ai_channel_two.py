@@ -87,12 +87,49 @@ class AIChannelTwo(Cog_Extension):
     async def on_message(self, msg: discord.Message):
         await self.on_msg_ai_channel(msg)
         await self.on_keke_send(msg)
+        await self.self_growth(msg)
         # await self.on_msg_chat_human(msg)
 
     async def on_keke_send(self, msg: discord.Message):
         if not is_KeJC(msg.author.id): return
         if msg.guild: return
         await redis_client.set('keke_send_message', msg.content)
+
+    async def self_growth(self, msg: discord.Message):
+        if not msg.content: return
+        if msg.author.bot: return
+        if msg.content.startswith(']') or msg.content.startswith(']! '): return
+
+        data = (await redis_client.get('chat_human_sent_msgs')) or {}
+        data: dict[int, list[dict[int, str]]] = orjson.loads(data)
+        '''
+        {
+            channelID: [
+                {
+                    userID: content, 
+                    userName: author.name, 
+                    time: current_time(), 
+                    msgID: msgid, 
+                    msgContent: msgcontent, 
+                    {reply_message: {'msgID': msgid, 'content': msgcontent}} or {}
+                }
+            ]    
+        }
+        '''
+        data_channel: list = data.get(msg.channel.id, [])
+        replied_msg = (msg.reference.cached_message or (await (self.bot.get_channel(msg.reference.channel_id)).fetch_message(msg.reference.message_id))) if msg.reference else None
+        data_channel.append(
+            {
+                'content': msg.content,
+                'authorName': msg.author.name,
+                'authorID': msg.author.id,
+                'time': current_time(),
+                'msgID': msg.id,
+                **({'reply_message': {'msgID': replied_msg.id, 'content': replied_msg.content, 'author': replied_msg.author.name, 'time': msg.created_at.strftime('%Y-%m-%d %H:%M:%S')}} if replied_msg else {})
+            }
+        )
+        data[msg.channel.id] = data_channel
+        await redis_client.set('chat_human_sent_msgs', orjson.dumps(data, option=orjson.OPT_INDENT_2).decode())
 
     async def on_msg_chat_human(self, msg: discord.Message):
         if not msg.content and not msg.attachments: return

@@ -55,8 +55,7 @@ async def save_to_long_term_memory(userID: int, memory: str) -> None:
     await upsert(data, QdrantCollectionName.user_long_term_memory)
 
 async def long_term_memory(userID: int, user_prompt: str, assistant_prompt: str, exitst_info: str = None, ctx: commands.Context = None):
-    collection = MongoDB_DB.system_prompt['default']
-    system_prompt = await get_single_default_system_prompt(collection, 'long_term_memory')
+    system_prompt = await get_single_default_system_prompt('long_term_memory')
 
     resp = await AsyncClient.self_ollama.chat.completions.create(
         model='qwen3:0.6b-q4_K_M',

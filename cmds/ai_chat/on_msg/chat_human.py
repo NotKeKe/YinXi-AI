@@ -29,13 +29,13 @@ async def get_example_response(user_prompt: str) -> str:
 )
 
 custom_tools_description: list = read_json('./cmds/ai_chat/tools/chat_human_tools/description.json')
-with open('./cmds/ai_chat/data/prompts/chat_human_prompt_own_products.md', 'r', encoding='utf-8') as f:
-    initial_system_prompt = f.read()
+# with open('./cmds/ai_chat/data/prompts/chat_human_prompt_own_products.md', 'r', encoding='utf-8') as f:
+#     initial_system_prompt = f.read()
 
 async def chat_human_chat(ctx: commands.Context, prompt: str, history: list, urls: list = None) -> Tuple[str, str]:
     client = Chat(
         model=model, 
-        system_prompt=(await get_single_default_system_prompt(MongoDB_DB.system_prompt['default'], 'chat_human')) + (await get_example_response(prompt)), 
+        system_prompt=(await get_single_default_system_prompt('chat_human')) + (await get_example_response(prompt)), 
         ctx=ctx
     )
 
@@ -62,12 +62,44 @@ class SelfGrowth:
             'chatting': self.chatting,
             'resting': self.resting
         }
+        self.system_prompt_map = {
+            'learning': 'self_growth_learning',
+            'chatting': 'self_growth_chatting',
+            'resting': 'self_growth_resting'
+        }
         self.all_modes = list(self.mode_map.keys())
 
+        self.pre_mode = None
+        self.rest_time: int = 0
+
     async def run(self):
+        await self.load_history()
         while True:
             try:
-                await self.mode_map[self.mode]()
+                if self.mode == 'resting' and self.rest_time != 0:
+                    await asyncio.sleep(self.rest_time)
+                    self.rest_time = 0
+                    continue
+
+                client = Chat(
+                    model,
+                )
+
+                keke_send = await redis_client.get('keke_send_message')
+                current_user_prompt = await get_current_user_prompt(self.mode)
+                prompt = f'{current_user_prompt}\n{f'克克KeJC(管理員)進行了回覆:\n  ```{keke_send}```' if keke_send else ''}'
+                system_prompt = f'已從 `{self.pre_mode}` 改為 `{self.mode}`' + (await get_single_default_system_prompt('self_growth_' + self.system_prompt_map.get(self.mode, 'learning'))) + (await get_current_system_prompt())
+
+                await self.mode_map[self.mode](client, prompt, system_prompt)
+
+                if current_user_prompt != 'system: 開始你的動作':
+                    await redis_client.delete('chat_human_current_user_prompt')
+
+                if len(self.history) > 10:
+                    self.history = await client.summarize_history(self.history)
+
+                await self.collection.update_one({'message': {'$exists': True}}, {'$set': {'message': self.history}}, upsert=True)
+                await redis_client.delete('keke_send_message')
             except asyncio.CancelledError:
                 return logger.info('已取消 SelfGrowth')
             except:
@@ -75,47 +107,45 @@ class SelfGrowth:
             finally:
                 await asyncio.sleep(10)
 
-    def switch_mode(self, mode: str):
+    def switch_mode(self, mode: str, rest_time: int = 300):
         if mode not in self.all_modes: return f"切換失敗，目前僅支援以下模式: {str(self.all_modes)}，但是你使用了 `{mode}`"
+        self.pre_mode = self.mode
         self.mode = mode
-        return f'已成功將現在的模式切換為 `{mode}`'
+        if self.mode == 'resting':
+            self.rest_time = rest_time
+
+        string = f'已成功將現在的模式切換為 `{mode}`' + (f'，並且休息 {rest_time} 秒' if self.mode == 'resting' else '')
+        logger.info(string)
+        return string
     
     async def load_history(self):
         self.history = (await self.collection.find_one({'message': {'$exists': True}}) or {}).get('message') or []
     
-    async def learning(self):
-        await self.load_history()
-
-        client = Chat(
-            model,
-        )
-
-        keke_send = await redis_client.get('keke_send_message')
-        current_user_prompt = await get_current_user_prompt()
-        prompt = current_user_prompt + '\n' + (f'克克KeJC(管理員)進行了回覆:\n  ```{keke_send}```' if keke_send else '')
-        system_prompt = initial_system_prompt + (await get_current_system_prompt())
-
+    async def learning(self, client: Chat, user_prompt: str, system_prompt: str):
         think, result, self.history = await client.chat(
-            prompt, 
+            user_prompt, 
             history=self.history,
-            custom_system_prompt=initial_system_prompt + system_prompt,
+            custom_system_prompt=system_prompt,
             include_original_tools=True,
             custom_tool_description=custom_tools_description,
             custom_tools=chat_human_tool_map,
             tool_call_times=1
         )
 
-        if current_user_prompt != 'system: 開始你的動作':
-            await redis_client.delete('chat_human_current_user_prompt')
+    async def chatting(self, client: Chat, user_prompt: str, system_prompt: str):
+        msgs = await redis_client.get('chat_human_sent_msgs')
 
-        if len(self.history) > 10:
-            self.history = await client.summarize_history(self.history)
+        think, result, self.history = await client.chat(
+            prompt=f"{f'以下為想跟你之前在{self.pre_mode}所忽略的訊息，請自行決定是否要回覆他們，你最多有10次機會可以回覆，其他未回覆的訊息將會被自動刪除。\n```json\n{msgs}\n```\n\n' if msgs else ''}\n{user_prompt}", 
+            history=self.history,
+            custom_system_prompt=system_prompt,
+            include_original_tools=True,
+            custom_tool_description=custom_tools_description,
+            custom_tools=chat_human_tool_map,
+            tool_call_times=10
+        )
 
-        await self.collection.update_one({'message': {'$exists': True}}, {'$set': {'message': self.history}}, upsert=True)
-        await redis_client.delete('keke_send_message')
-
-    async def chatting(self):
-        pass
+        await redis_client.delete('chat_human_sent_msgs')
     
     async def resting(self):
         pass

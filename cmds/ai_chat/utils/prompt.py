@@ -1,5 +1,6 @@
 from typing import List, Tuple
 from motor.motor_asyncio import AsyncIOMotorCollection
+import logging
 
 from .config import mongo_db_client
 
@@ -10,17 +11,22 @@ from core.mongodb_clients import MongoDB_DB
 KEY = 'system_prompt'
 REDIS_default_system_prompts_KEY = 'default_system_prompts:'
 
+logger = logging.getLogger(__name__)
+
 async def get_prompts(collection: AsyncIOMotorCollection) -> List[Tuple[str, str]]:
     '''
     Return name, prompt
     '''
     return [(item.get('name'), item.get('prompt')) async for item in collection.find() if item.get('name') and item.get('prompt')]
 
-async def get_single_default_system_prompt(collection: AsyncIOMotorCollection, name: str) -> str:
+async def get_single_default_system_prompt(name: str) -> str:
     prompt = await redis_client.hget(REDIS_default_system_prompts_KEY, name)
     if not prompt:
         collection = MongoDB_DB.system_prompt['default']
         data = await collection.find_one({'name': name})
+        if not data:
+            logger.error(f'Cannot found system_prompt from MongoDB: `{name}`')
+            return ''
         prompt = data.get('prompt', '')
 
         # 寫進 Redis

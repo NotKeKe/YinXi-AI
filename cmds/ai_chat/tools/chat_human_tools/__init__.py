@@ -15,6 +15,8 @@ __all__ = [
     'send_to_channel',
     'self_database_save',
     'self_database_search',
-    'stop_task',
-    'switch_mode'
+    'switch_mode',
+    'get_havent_reply_msgs',
+    'reply_message',
+    'ignore_msg'
 ]

@@ -144,8 +144,38 @@
     {
         "type": "function",
         "function": {
-            "name": "stop_task",
-            "description": "此工具用來停止當前的任務，在你需要休息時 請調用此工具",
+            "name": "switch_mode",
+            "description": "此工具用來切換當前的mode，在每個mode下會有不同的任務要執行",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "mode": { "type": "string", "description": "在此輸入要切換的模式，目前僅支援 ['learning', 'chatting', 'resting']" }
+                },
+                "required": ["mode"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "reply_message",
+            "description": "此工具用來回覆一個已知 channelID, msgID 的訊息",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "channelID": { "type": "integer", "description": "在此完整的輸入頻道ID" },
+                    "msgID": { "type": "integer", "description": "在此輸入訊息ID" },
+                    "text": { "type": "string", "description": "在此輸入你要回覆的文字" }
+                },
+                "required": ["channelID", "msgID", "text"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_havent_reply_msgs",
+            "description": "此工具用來取得尚未回覆的訊息，在chatting模式下必須調用此工具",
             "parameters": {
                 "type": "object",
                 "properties": {},
@@ -156,14 +186,15 @@
     {
         "type": "function",
         "function": {
-            "name": "switch_mode",
-            "description": "此工具用來切換當前的mode，在每個mode下會有不同的任務要執行",
+            "name": "ignore_msg",
+            "description": "在調用 `get_havent_reply_msgs` 後，可以使用此工具去忽略某些你不想回覆的訊息，他之後就不會再被你看到",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "mode": { "type": "string", "description": "在此輸入要切換的模式，目前僅支援 ['learning', 'chatting', 'resting']" }
+                    "channelID": { "type": "integer", "description": "在此完整的輸入頻道ID" },
+                    "msgID": { "type": "integer", "description": "在此輸入訊息ID" }
                 },
-                "required": []
+                "required": ["channelID", "msgID"]
             }
         }
     }
