@@ -3,6 +3,7 @@ from openai import AsyncOpenAI
 from qdrant_client.models import PointStruct, Filter, FilterSelector, Record
 import logging
 import uuid
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 from core.mongodb_clients import MongoDB_DB
 
@@ -46,6 +47,7 @@ async def model_select() -> Tuple[AsyncOpenAI, str]:
 
     return client, model
 
+@retry(stop=stop_after_attempt(2), wait=wait_fixed(3))
 async def search(query: str, collection_name: str, _filter: Filter | None = None, num: int = 5) -> List[Dict[str, Any]]:
     embedding = (await get_embedding(query))[0]
     points = await qdrant_client.search(
@@ -72,6 +74,7 @@ def process_result(data: List[Dict[str, Any]]) -> str:
     d = [f"<database id={index+1}>{f'time: {v.get("time")}' if v.get('time') else ''} {v.get('text')}</database id={index+1}>".strip() for index, v in enumerate(data)]
     return '\n'.join(d)
 
+@retry(stop=stop_after_attempt(2), wait=wait_fixed(3))
 async def upsert(data: List[Dict[str, Any]], collection_name: str):
     '''
     data: [

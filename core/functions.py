@@ -146,7 +146,7 @@ def FormatTime(time: datetime) -> str:
 
 def current_time(UTC: int = 8) -> str:
     '''回傳現在時間(str)，arg: UTC: 使用者所提供的時區'''
-    time = datetime.now(timezone(timedelta(hours=UTC)))
+    time = datetime.now(timezone(timedelta(hours=int(UTC))))
     return FormatTime(time)
 
 async def thread_pool(func, *args, **kwargs):

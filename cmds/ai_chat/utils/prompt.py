@@ -5,7 +5,7 @@ import logging
 from .config import mongo_db_client
 
 from cmds.ai_chat.utils.config import base_system_prompt
-from core.functions import redis_client
+from core.functions import redis_client, current_time
 from core.mongodb_clients import MongoDB_DB
 
 KEY = 'system_prompt'
@@ -33,7 +33,7 @@ async def get_single_default_system_prompt(name: str) -> str:
         if prompt:
             await redis_client.hset(REDIS_default_system_prompts_KEY, name, prompt)
             await redis_client.expire(REDIS_default_system_prompts_KEY, 60 * 10) # 10 mins
-    return prompt
+    return prompt.format(time=current_time())
 
 async def from_name_to_system_prompt(userID: int | str, name: str) -> str:
     collection = mongo_db_client[KEY][str(userID)]

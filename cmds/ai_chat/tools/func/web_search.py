@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 async def web_search(keywords: str, time_range: str = 'year', language: str = 'zh-TW') -> str:
     final_result = []
     try:
-        time_range = ('day' if time_range.lower().strip() not in ('year', 'monuth', 'week', 'day') else time_range.lower().strip()) if time_range else None
+        time_range = ('day' if time_range.lower().strip() not in ('year', 'month', 'week', 'day') else time_range.lower().strip()) if time_range else None
 
         params = {
             'q': keywords,
@@ -53,7 +53,8 @@ async def web_search(keywords: str, time_range: str = 'year', language: str = 'z
             markdown_generator=md_generator,  
             exclude_external_links=True,  
             word_count_threshold=10,
-            stream=True
+            stream=True,
+            wait_for_timeout=5
         )  
         
         async with Crawl4aiDockerClient(base_url=f"http://{DEVICE_IP}:11235") as client:
@@ -64,12 +65,16 @@ async def web_search(keywords: str, time_range: str = 'year', language: str = 'z
             )  
             
             index = 1
-            async for result in results:
-                if result.success:
-                    final_result.append(f'<web_search id={index} source_url: {result.url}>{result.markdown.fit_markdown[:1000]}</web_search id={index}>')
-                    index += 1
-    except:
-        logger.error('Error accred at web_search function: ', exc_info=True)
+            try:
+                async for result in results:
+                    if result.success:
+                        final_result.append(f'<web_search id={index} source_url: {result.url}>{result.markdown.fit_markdown[:1000]}</web_search id={index}>')
+                        index += 1
+            except Exception as e:
+                logger.error(f"Error accured at web_search funciotn's async for: {str(e)}")
+    except Exception as e:
+        logger.error('Error accured at web_search function: ', exc_info=True)
+        return f'web_search returned a error: {e}'
 
     if not final_result: return "web_search didn't find any answer."
 

@@ -279,8 +279,11 @@ class Chat:
                 model: str = None,
                 temperature: float = 1.0,
                 history: list = None,
-                max_tokens: int = None,
+                max_completion_tokens: int = None,
                 top_p: float = 1.0,
+                repeat_penalty: float = None,
+                frequency_penalty: float = None,
+                presence_penalty: float = None,
 
                 is_enable_tools: bool = True,
                 delete_tools: Union[str, list] = None,
@@ -328,7 +331,7 @@ class Chat:
             resp = await self.client.chat.completions.create(
                 model=self.model,
                 messages=system + history,
-                max_completion_tokens=max_tokens,
+                max_completion_tokens=max_completion_tokens,
                 temperature=temperature,
                 top_p=top_p,
                 stream=False,
@@ -344,7 +347,12 @@ class Chat:
                             if is_enable_tools 
                             else None
                         )),
-                tool_choice=tool_choice if tool_choice else ('auto' if is_enable_tools else None) 
+                tool_choice=tool_choice if tool_choice else ('auto' if is_enable_tools else None) ,
+                **({'frequency_penalty': frequency_penalty} if frequency_penalty else {}),
+                presence_penalty=presence_penalty,
+                extra_body=({
+                    'repeat_penalty': repeat_penalty
+                }) if repeat_penalty else None
             )
             return resp
         try:

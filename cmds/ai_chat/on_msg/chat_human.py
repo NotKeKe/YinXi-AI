@@ -15,7 +15,7 @@ from core.mongodb_clients import MongoDB_DB
 from core.functions import read_json, redis_client
 from core.chat_human.prompt import get_current_system_prompt, get_current_user_prompt
 
-model = 'lmstudio:qwen/qwen3-4b'
+model = 'lmstudio:deepseek/deepseek-r1-0528-qwen3-8b'
 logger = logging.getLogger(__name__)
 
 async def get_example_response(user_prompt: str) -> str:
@@ -76,10 +76,10 @@ class SelfGrowth:
         await self.load_history()
         while True:
             try:
-                if self.mode == 'resting' and self.rest_time != 0:
-                    await asyncio.sleep(self.rest_time)
-                    self.rest_time = 0
-                    continue
+                # if self.mode == 'resting' and self.rest_time != 0:
+                #     await asyncio.sleep(self.rest_time)
+                #     self.rest_time = 0
+                #     continue
 
                 client = Chat(
                     model,
@@ -92,11 +92,11 @@ class SelfGrowth:
 
                 await self.mode_map[self.mode](client, prompt, system_prompt)
 
-                if current_user_prompt != 'system: 開始你的動作':
+                if current_user_prompt != f'#System: 請開始{self.mode}':
                     await redis_client.delete('chat_human_current_user_prompt')
 
-                if len(self.history) > 10:
-                    self.history = await client.summarize_history(self.history)
+                # if len(self.history) > 10:
+                #     self.history = await client.summarize_history(self.history)
 
                 await self.collection.update_one({'message': {'$exists': True}}, {'$set': {'message': self.history}}, upsert=True)
                 if keke_send:
@@ -108,14 +108,12 @@ class SelfGrowth:
             finally:
                 await asyncio.sleep(10)
 
-    def switch_mode(self, mode: str, rest_time: int = 300):
+    def switch_mode(self, mode: str):
         if mode not in self.all_modes: return f"切換失敗，目前僅支援以下模式: {str(self.all_modes)}，但是你使用了 `{mode}`"
         self.pre_mode = self.mode
         self.mode = mode
-        if self.mode == 'resting':
-            self.rest_time = rest_time
 
-        string = f'已成功將現在的模式切換為 `{mode}`' + (f'，並且休息 {rest_time} 秒' if self.mode == 'resting' else '')
+        string = f'已成功將現在的模式切換為 `{mode}`'
         logger.info(string)
         return string
     
@@ -130,7 +128,12 @@ class SelfGrowth:
             include_original_tools=True,
             custom_tool_description=custom_tools_description,
             custom_tools=chat_human_tool_map,
-            tool_call_times=1
+            tool_call_times=1,
+            temperature=1.2,
+            repeat_penalty=1.3,
+            frequency_penalty=0.8,
+            presence_penalty=1.0,
+            max_completion_tokens=2000
         )
 
     async def chatting(self, client: Chat, user_prompt: str, system_prompt: str):
@@ -143,12 +146,24 @@ class SelfGrowth:
             include_original_tools=True,
             custom_tool_description=custom_tools_description,
             custom_tools=chat_human_tool_map,
-            tool_call_times=10
+            tool_call_times=10,
+            repeat_penalty=1.3,
+            max_completion_tokens=2000
         )
 
         await redis_client.delete('chat_human_sent_msgs')
     
-    async def resting(self):
-        pass
+    async def resting(self, client: Chat, user_prompt: str, system_prompt: str):
+        think, result, self.history = await client.chat(
+            user_prompt, 
+            history=self.history,
+            custom_system_prompt=system_prompt,
+            include_original_tools=True,
+            custom_tool_description=custom_tools_description,
+            custom_tools=chat_human_tool_map,
+            tool_call_times=1,
+            repeat_penalty=1.3,
+            max_completion_tokens=2000
+        )
 
 self_growth = SelfGrowth()
