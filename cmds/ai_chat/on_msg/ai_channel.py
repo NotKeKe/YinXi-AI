@@ -42,7 +42,7 @@ async def save_history(ctx: commands.Context, history: list):
         logger.error('Error accured at save_history', exc_info=True)
 
 
-async def ai_channel_chat(ctx: commands.Context, prompt: str, model: str, system_prompt: str = None, urls: list = None, image: Attachment = None) -> Tuple[str, str, list]:
+async def ai_channel_chat(ctx: commands.Context, prompt: str, model: str, system_prompt: str | None = None, urls: list | None = None, image: Attachment | None = None) -> Tuple[str, str, list]:
     system_prompt = system_prompt or base_system_prompt
     client = Chat(model, system_prompt, ctx)
 

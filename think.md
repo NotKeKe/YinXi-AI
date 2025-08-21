@@ -39,3 +39,16 @@
         3. 在這3個mode之中，會有多少需要重複使用的東西? 需要將他們移出來。
     *   **Think**
         *   每次開始前，先決定 mode 切換
+
+
+(20250822)
+- 他不會主動去跟人聊天，也不知道有哪些頻道
+- 一個隨機的心情
+    - data type
+        > `energy: ( random.randint() or ( energy--/second, when under 20%, random轉為另一種情緒 ) ), mood: happiness`
+    - llm 自己更新情緒，例如使用者跟他聊天，可能就會 +20 happiness\
+    => 擁有一些情緒種類 (開心, 傷心)
+- 手動的隨機對話
+    - 我認為可以去 lovelive api 調用幾句話來用，作為風格範例
+    - 做一些定時工具，取得有趣的事情之類的
+- 分開 self_database 與 使用者相關的資訊 -> 向量檢索可以比較不混亂，llm也比較知道要調用什麼工具

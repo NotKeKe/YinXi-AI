@@ -17,6 +17,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from qdrant_client import AsyncQdrantClient
 import redis.asyncio as redis
 from crawl4ai.docker_client import Crawl4aiDockerClient  
+import random
 
 import os
 from dotenv import load_dotenv
@@ -283,3 +284,6 @@ def split_str_by_len_and_backtick(text: str, chunk_size: int = 1800) -> list[str
         chunks.append(chunk)
 
     return ['\n'.join(c) for c in chunks]
+
+def random_bool(probability: float = 0.5) -> bool:
+    return random.random() < probability

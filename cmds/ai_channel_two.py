@@ -1,6 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
+from discord.abc import MessageableChannel
 import logging
 import openai
 import orjson
@@ -12,7 +13,8 @@ from core.translator import locale_str, load_translated
 
 from core.mongodb_clients import MongoDB_DB
 
-from cmds.ai_chat.on_msg import ai_channel_chat, chat_human_chat, chat_human
+from cmds.ai_chat.on_msg import ai_channel_chat, chat_human_chat
+from cmds.ai_chat.on_msg.self_growth import SelfGrowth
 from cmds.ai_chat.utils import model_autocomplete, to_user_message, to_assistant_message, add_think_button, add_history_button, split_provider_model
 
 logger = logging.getLogger(__name__)
@@ -21,7 +23,7 @@ logger = logging.getLogger(__name__)
 db_key = 'aichannel_chat_history'
 aichanneltwo = None
 
-async def to_history(channel: discord.TextChannel, limit: int = 10):
+async def to_history(channel: MessageableChannel, limit: int = 10):
     histories = []
     messages = [m async for m in channel.history(limit=limit)]
     messages.reverse()
@@ -60,7 +62,9 @@ class AIChannelTwo(Cog_Extension):
         self.db = MongoDB_DB.aichat_chat_history
 
         self.chat_human_tasks: dict[int, asyncio.Task] = {}
-        self.keep_think_task: asyncio.Task = None
+        self.keep_think_task: asyncio.Task | None = None
+
+        self.self_growth = SelfGrowth()
 
     async def cog_load(self):
         print(f'已載入{__name__}')
@@ -71,7 +75,7 @@ class AIChannelTwo(Cog_Extension):
         if self.keep_think_task:
             return await ctx.send('False')
         
-        self.keep_think_task = asyncio.create_task(chat_human.self_growth.run())
+        self.keep_think_task = asyncio.create_task(self.self_growth.run())
         await ctx.send('True')
 
     @commands.command()
@@ -87,7 +91,7 @@ class AIChannelTwo(Cog_Extension):
     async def on_message(self, msg: discord.Message):
         await self.on_msg_ai_channel(msg)
         await self.on_keke_send(msg)
-        await self.self_growth(msg)
+        await self.on_msg_self_growth(msg)
         # await self.on_msg_chat_human(msg)
 
     async def on_keke_send(self, msg: discord.Message):
@@ -95,13 +99,13 @@ class AIChannelTwo(Cog_Extension):
         if msg.guild: return
         await redis_client.set('keke_send_message', msg.content)
 
-    async def self_growth(self, msg: discord.Message):
+    async def on_msg_self_growth(self, msg: discord.Message):
         if not msg.content: return
         if msg.author.bot: return
         if msg.content.startswith(']') or msg.content.startswith(']! '): return
 
-        data = (await redis_client.get('chat_human_sent_msgs')) or '{}'
-        data: dict[str, list[dict[str, str]]] = orjson.loads(data)
+        data = (await redis_client.get('chat_human_sent_msgs')) or '{}' # type: ignore
+        data: dict[str, list[dict[str, str]]] = orjson.loads(data) # type: ignore
         '''
         {
             channelID: [
@@ -117,7 +121,7 @@ class AIChannelTwo(Cog_Extension):
         }
         '''
         data_channel: list = data.get(str(msg.channel.id), [])
-        replied_msg = (msg.reference.cached_message or (await (self.bot.get_channel(msg.reference.channel_id)).fetch_message(msg.reference.message_id))) if msg.reference else None
+        replied_msg = (msg.reference.cached_message or (await msg.channel.fetch_message(msg.reference.message_id))) if msg.reference and msg.reference.message_id else None
         data_channel.append(
             {
                 'content': msg.content,
@@ -180,7 +184,7 @@ class AIChannelTwo(Cog_Extension):
             await ctx.send(f'Error accured :<\n{str(e)}', ephemeral=True)
         except:
             logger.error('Error accured at on_msg_chat_human', exc_info=True)
-            await msg.channel.send(await self.bot.tree.translator.get_translate('send_on_msg_chat_human_error'))
+            await msg.channel.send(await self.bot.tree.translator.get_translate('send_on_msg_chat_human_error')) # type: ignore
 
     async def on_msg_ai_channel(self, msg: discord.Message):
         if not msg.content and not msg.attachments: return
