@@ -2,6 +2,7 @@ from .browser import *
 from .to_user import *
 from .file import *
 from .history_edit import *
+from .mood import *
 
 __all__ = [
     'close_page', 
@@ -18,5 +19,7 @@ __all__ = [
     'switch_mode',
     'get_havent_reply_msgs',
     'reply_message',
-    'ignore_msg'
+    'ignore_msg',
+    'change_mood',
+    'get_mood'
 ]

@@ -14,5 +14,7 @@ map = {
     'reply_message': reply_message,
     'get_havent_reply_msgs': get_havent_reply_msgs,
     'ignore_msg': ignore_msg,
-    'switch_mode': switch_mode
+    'switch_mode': switch_mode,
+    'get_mood': get_mood,
+    'change_mood': change_mood
 }

@@ -1,13 +1,13 @@
 import discord
 from discord import app_commands
-from discord.ext import commands
-from discord.abc import MessageableChannel
+from discord.ext import commands, tasks
+from discord.abc import Messageable
 import logging
 import openai
 import orjson
 import asyncio
 
-from core.functions import create_basic_embed, current_time, get_attachment, split_str_by_len_and_backtick, UnixNow, redis_client, is_KeJC
+from core.functions import create_basic_embed, current_time, get_attachment, split_str_by_len_and_backtick, UnixNow, redis_client, is_KeJC, settings
 from core.classes import Cog_Extension, get_bot
 from core.translator import locale_str, load_translated
 
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 db_key = 'aichannel_chat_history'
 aichanneltwo = None
 
-async def to_history(channel: MessageableChannel, limit: int = 10):
+async def to_history(channel: Messageable, limit: int = 10):
     histories = []
     messages = [m async for m in channel.history(limit=limit)]
     messages.reverse()
@@ -68,7 +68,15 @@ class AIChannelTwo(Cog_Extension):
 
     async def cog_load(self):
         print(f'已載入{__name__}')
+        self.decrease_mood.start()
+        self.update_status.start()
         # self.keep_think_task = asyncio.create_task(chat_human.self_growth.run())
+
+    async def cog_unload(self):
+        if self.keep_think_task:
+            self.keep_think_task.cancel()
+            self.keep_think_task = None
+
 
     @commands.command()
     async def keep_think_start(self, ctx):
@@ -518,6 +526,35 @@ class AIChannelTwo(Cog_Extension):
                 await ctx.send(embed=eb, view=view)
         except:
             logger.error('Error accured at cancel_chat_human', exc_info=True)
+
+    @tasks.loop(minutes=1)
+    async def decrease_mood(self):
+        self.self_growth.status.mood.mood_decrease_task()
+
+    @tasks.loop(seconds=10)
+    async def update_status(self):
+        try:
+            channel = self.bot.get_channel(settings.get('update_status_channelID')) or await self.bot.fetch_channel(settings.get('update_status_channelID'))
+            msg = await channel.fetch_message(settings.get('update_status_msgID'))
+
+            eb = create_basic_embed('Task Status', description='✅' if self.keep_think_task is not None else '❌')
+            eb.add_field(name='Current Mode', value=self.self_growth.status.mode, inline=False)
+            eb.add_field(name='Current Mood', value=f'```json\n{orjson.dumps(self.self_growth.status.mood.to_json(), option=orjson.OPT_INDENT_2).decode()[:1000]}\n```', inline=False)
+
+            if self.self_growth.history:
+                eb.add_field(name='History Length', value=len(self.self_growth.history), inline=False)
+                eb.add_field(name='Last Message', value=f'```json\n{orjson.dumps(self.self_growth.history[-1], option=orjson.OPT_INDENT_2).decode()[:1000]}\n```', inline=False)
+
+            system_prompt = ((await redis_client.get('chat_human_current_system_prompt') or '')[:1000]).split('\n')
+            eb.add_field(name='Current System Prompt', value='> ' + '\n> '.join(system_prompt), inline=False)
+
+            await msg.edit(embed=eb)
+        except Exception as e:
+            logger.error('無法更新 self_growth 狀態: ' + str(e))
+
+    @update_status.before_loop
+    async def update_status_before_loop(self):
+        await self.bot.wait_until_ready()
 
 async def setup(bot):
     global aichanneltwo

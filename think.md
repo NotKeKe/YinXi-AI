@@ -52,3 +52,11 @@
     - 我認為可以去 lovelive api 調用幾句話來用，作為風格範例
     - 做一些定時工具，取得有趣的事情之類的
 - 分開 self_database 與 使用者相關的資訊 -> 向量檢索可以比較不混亂，llm也比較知道要調用什麼工具
+
+## mood
+1. 工具調用
+    *   調用工具 +0.02 tired
+        > 成功: 
+            > chatting: happy +0.03, sad -0.03, tired -0.01
+            > learning / resting: happy +0.02, sad -0.01
+        > 失敗: sad +0.01, angry +0.02

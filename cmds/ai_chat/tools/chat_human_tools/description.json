@@ -197,5 +197,32 @@
                 "required": ["channelID", "msgID"]
             }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_mood",
+            "description": "如果提示詞中未提供，用來取得現在的情緒",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "change_mood",
+            "description": "用來改變自己的情緒，例如與使用者聊天時可以+20%開心之類的",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "channelID": { "type": "string", "description": "在此完整的輸入頻道ID" },
+                    "msgID": { "type": "integer", "description": "在此輸入訊息ID" }
+                },
+                "required": ["channelID", "msgID"]
+            }
+        }
     }
 ]
