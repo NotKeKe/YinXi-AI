@@ -62,44 +62,44 @@ class AIChannelTwo(Cog_Extension):
         self.db = MongoDB_DB.aichat_chat_history
 
         self.chat_human_tasks: dict[int, asyncio.Task] = {}
-        self.keep_think_task: asyncio.Task | None = None
+        # self.keep_think_task: asyncio.Task | None = None
 
-        self.self_growth = SelfGrowth()
+        # self.self_growth = SelfGrowth()
 
     async def cog_load(self):
         print(f'已載入{__name__}')
-        self.decrease_mood.start()
-        self.update_status.start()
+        # self.decrease_mood.start()
+        # self.update_status.start()
         # self.keep_think_task = asyncio.create_task(chat_human.self_growth.run())
 
-    async def cog_unload(self):
-        if self.keep_think_task:
-            self.keep_think_task.cancel()
-            self.keep_think_task = None
+    # async def cog_unload(self):
+    #     if self.keep_think_task:
+    #         self.keep_think_task.cancel()
+    #         self.keep_think_task = None
 
 
-    @commands.command()
-    async def keep_think_start(self, ctx):
-        if self.keep_think_task:
-            return await ctx.send('False')
+    # @commands.command()
+    # async def keep_think_start(self, ctx):
+    #     if self.keep_think_task:
+    #         return await ctx.send('False')
         
-        self.keep_think_task = asyncio.create_task(self.self_growth.run())
-        await ctx.send('True')
+    #     self.keep_think_task = asyncio.create_task(self.self_growth.run())
+    #     await ctx.send('True')
 
-    @commands.command()
-    async def keep_think_stop(self, ctx):
-        if self.keep_think_task:
-            self.keep_think_task.cancel()
-            self.keep_think_task = None
-            await ctx.send('True')
-        else:
-            await ctx.send('No task')
+    # @commands.command()
+    # async def keep_think_stop(self, ctx):
+    #     if self.keep_think_task:
+    #         self.keep_think_task.cancel()
+    #         self.keep_think_task = None
+    #         await ctx.send('True')
+    #     else:
+    #         await ctx.send('No task')
 
     @commands.Cog.listener()
     async def on_message(self, msg: discord.Message):
         await self.on_msg_ai_channel(msg)
-        await self.on_keke_send(msg)
-        await self.on_msg_self_growth(msg)
+        # await self.on_keke_send(msg)
+        # await self.on_msg_self_growth(msg)
         # await self.on_msg_chat_human(msg)
 
     async def on_keke_send(self, msg: discord.Message):
@@ -529,6 +529,7 @@ class AIChannelTwo(Cog_Extension):
 
     @tasks.loop(minutes=1)
     async def decrease_mood(self):
+        if self.keep_think_task is None: return
         self.self_growth.status.mood.mood_decrease_task()
 
     @tasks.loop(seconds=10)

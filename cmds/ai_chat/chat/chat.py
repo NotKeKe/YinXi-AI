@@ -292,6 +292,7 @@ class Chat:
                 include_original_tools: bool = False,
                 tool_call_times: int = 3,
 
+                if_get_extra_user_info: bool = True,
                 timeout: float = None,
                 url: list = None,
                 image: discord.Attachment = None,
@@ -315,7 +316,7 @@ class Chat:
         if provider == 'openrouter':
             is_enable_tools = False
 
-        extra_user_info = await self.get_extra_user_info(prompt)
+        extra_user_info = (await self.get_extra_user_info(prompt)) if if_get_extra_user_info else ''
         system_prompt = self.system_prompt + extra_user_info
 
         system = to_system_message(

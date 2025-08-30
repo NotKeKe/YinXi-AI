@@ -18,3 +18,5 @@ class MongoDB_DB:
     aichannel_chat_history = mongo_db_client['aichannel_chat_history']
 
     self_growth_history = mongo_db_client['self_growth_history']
+
+    yinxi_chat = mongo_db_client['yinxi_chat']
