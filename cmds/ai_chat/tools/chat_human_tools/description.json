@@ -43,20 +43,6 @@
     {
         "type": "function",
         "function": {
-            "name": "call_keke",
-            "description": "此工具用來聯繫你的創造者(及 `克克KeJC`)，在你有任何問題，或者希望新增什麼功能時，都可以使用此工具聯繫他。",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "query": { "type": "string", "description": "在使輸入你要對克克說什麼話" }
-                },
-                "required": ["query"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
             "name": "read_file",
             "description": "此工具用來閱讀某個某個已知路徑的本地檔案",
             "parameters": {
@@ -71,41 +57,15 @@
     {
         "type": "function",
         "function": {
-            "name": "add_system_prompt",
-            "description": "此工具用於調整提示詞，你可以在提示詞內部加上任何有意義的文字，包括但不限於性格、說話風格。",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "system_prompt": { "type": "string", "description": "在使輸入你要修改的提示詞 (將會覆蓋原先的提示詞)" }
-                },
-                "required": ["system_prompt"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "add_user_prompt",
-            "description": "此工具用於模擬使用者的提示詞，讓你可以繼續執行下一個步驟",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "user_prompt": { "type": "string", "description": "在使輸入你要對克克說什麼話" }
-                },
-                "required": ["user_prompt"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
             "name": "send_to_channel",
             "description": "此工具用來在某個discord頻道傳送訊息，必須先知道頻道的ID",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "text": { "type": "string", "description": "在使輸入你要對這個頻道的人說什麼話" },
-                    "channelID": { "type": "integer", "description": "在此輸入頻道ID" }
+                    "text": { "type": "string", "description": "在使輸入你要對這個頻道的人說什麼話，確保內容與提示詞內所提到的風格一致" },
+                    "channelID": { "type": "string", "description": "在此輸入**完整**的頻道ID" },
+                    "replied": { "type": "bool", "description": "如果你需要特別標記這是回覆對方的訊息，請傳入True" },
+                    "messageID": { "type": "string", "description": "如果你需要特別標記這是回覆對方的訊息，請傳入該**完整**訊息的 messageID。" }
                 },
                 "required": ["text", "channelID"]
             }
@@ -138,90 +98,6 @@
 
                 },
                 "required": ["query", "num"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "switch_mode",
-            "description": "此工具用來切換當前的mode，在每個mode下會有不同的任務要執行",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "mode": { "type": "string", "description": "在此輸入要切換的模式，目前僅支援 ['learning', 'chatting', 'resting']" }
-                },
-                "required": ["mode"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "reply_message",
-            "description": "此工具用來回覆一個已知 channelID, msgID 的訊息",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "channelID": { "type": "integer", "description": "在此完整的輸入頻道ID" },
-                    "msgID": { "type": "integer", "description": "在此輸入訊息ID" },
-                    "text": { "type": "string", "description": "在此輸入你要回覆的文字" }
-                },
-                "required": ["channelID", "msgID", "text"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "get_havent_reply_msgs",
-            "description": "此工具用來取得尚未回覆的訊息，在chatting模式下必須調用此工具",
-            "parameters": {
-                "type": "object",
-                "properties": {},
-                "required": []
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "ignore_msg",
-            "description": "在調用 `get_havent_reply_msgs` 後，可以使用此工具去忽略某些你不想回覆的訊息，他之後就不會再被你看到",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "channelID": { "type": "string", "description": "在此完整的輸入頻道ID" },
-                    "msgID": { "type": "integer", "description": "在此輸入訊息ID" }
-                },
-                "required": ["channelID", "msgID"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "get_mood",
-            "description": "如果提示詞中未提供，用來取得現在的情緒",
-            "parameters": {
-                "type": "object",
-                "properties": {},
-                "required": []
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "change_mood",
-            "description": "用來改變自己的情緒，例如與使用者聊天時可以+20%開心之類的",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "channelID": { "type": "string", "description": "在此完整的輸入頻道ID" },
-                    "msgID": { "type": "integer", "description": "在此輸入訊息ID" }
-                },
-                "required": ["channelID", "msgID"]
             }
         }
     }

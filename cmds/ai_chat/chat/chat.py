@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
-from typing import Tuple, Union, List, Dict, Callable, Awaitable, Any
-from typing import AsyncGenerator
+from typing import Tuple, Union, List, Dict, Callable, Awaitable, Any, AsyncGenerator, Literal
 from openai.types.chat import ChatCompletionChunk, ChatCompletion, ChatCompletionMessage
 import orjson
 import logging
@@ -298,7 +297,7 @@ class Chat:
                 image: discord.Attachment = None,
                 text_file: discord.Attachment = None,
                 custom_system_prompt: str = None,
-                tool_choice: str = None,
+                tool_choice: Literal['auto', 'required', 'none'] = None,
                 vector_database: list[str] = None
             ) -> Tuple[str, str, list]:
         if not self.client:

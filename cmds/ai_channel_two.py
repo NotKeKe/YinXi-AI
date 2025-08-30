@@ -14,7 +14,7 @@ from core.translator import locale_str, load_translated
 from core.mongodb_clients import MongoDB_DB
 
 from cmds.ai_chat.on_msg import ai_channel_chat, chat_human_chat
-from cmds.ai_chat.on_msg.self_growth import SelfGrowth
+# from cmds.ai_chat.on_msg.self_growth import SelfGrowth
 from cmds.ai_chat.utils import model_autocomplete, to_user_message, to_assistant_message, add_think_button, add_history_button, split_provider_model
 
 logger = logging.getLogger(__name__)

@@ -8,17 +8,24 @@ from datetime import timezone, timedelta
 from ..chat.chat import Chat
 from ..utils.prompt import get_single_default_system_prompt
 from ..utils import to_user_message, to_assistant_message
+from ..tools.chat_human_tools.map import (
+    map as chat_human_tool_map,
+)
+from .chat_human import custom_tools_description
 
 from cmds.vector.call import search, upsert
 
 from core.qdrant import QdrantCollectionName
 from core.classes import get_bot
+from core.functions import current_time
 
 logger = logging.getLogger(__name__)
 
+prompt_format = '<discord_message channelId={channelId} userName="{userName}" userId={userId} messageId={messageId} time="{time}"> {content} </discord_message>'
+
 class YinXiRun:
-    def __init__(self, ctx: commands.Context):
-        self.model = 'lmstudio:qwen/qwen3-14b'
+    def __init__(self, ctx: commands.Context = None):
+        self.model = 'lmstudio:qwen3-14b'
         self.ctx = ctx
 
         self.client = Chat(model=self.model, ctx=ctx)
@@ -32,15 +39,16 @@ class YinXiRun:
             await self.get_channel_history()
 
             # decide whether to response user (only work in a server)
-            if self.ctx.guild:
-                await self.client.re_system_prompt(await get_single_default_system_prompt('yinxi_should_response')) #TODO
-                result = await self.decide_if_resp()
-                if not result: return
+            # if self.ctx.guild:
+            #     self.client.re_system_prompt((await get_single_default_system_prompt('yinxi_should_response'))) #TODO
+            #     result = await self.decide_if_resp()
+            #     if not result: return
 
             # system prompt & resp style
             system_prompt = await get_single_default_system_prompt('yinxi_chat') #TODO
             resp_example = await self.get_response_example() # also add to system prompt
-            system_prompt = system_prompt.format(resp_example=resp_example)
+            system_prompt = system_prompt.format(time=current_time(), resp_example=resp_example)
+            self.client.re_system_prompt(system_prompt)
 
             # call llm
             await self.call()
@@ -59,9 +67,16 @@ class YinXiRun:
             ]
         )
         payload = await search(self.ctx.message.content, QdrantCollectionName.yinxi_passed_history, filter)
-        self.history.append(to_user_message(
+        self.history.extend(to_user_message(
             '\n\n'.join([
-                f'<discord_message channelId={item.get('channelID')} userName={item.get('userName')} userId={item.get('userID')} messageId={item.get('messageID')} time={item.get('time')}> {item.get('text')} </discord_message>'
+                prompt_format.format(
+                    channelId=item.get('channelID'), 
+                    userName=item.get('userName'), 
+                    userId=item.get('userID'), 
+                    messageId=item.get('messageID'), 
+                    time=item.get('time'), 
+                    content=item.get('text')
+                ).strip()
                 for item in payload
             ])
         ))
@@ -90,13 +105,11 @@ class YinXiRun:
             else:
                 if m.content.startswith(']'): continue
 
-                string_format = '<discord_message channelId={channelId} userName={userName} userId={userId} messageId={messageId} time={time}> {content} </discord_message>'
-
                 time = self.ctx.message.created_at.astimezone(timezone(timedelta(hours=8))).strftime("%Y/%m/%d %H:%M:%S")
 
-                content = string_format.format(
+                content = prompt_format.format(
                     channelId=m.channel.id, 
-                    userName=m.author.name, 
+                    userName=m.author.global_name, 
                     userId=m.author.id, 
                     messageId=m.id, 
                     time=time, 
@@ -109,28 +122,40 @@ class YinXiRun:
                     histories.extend(to_user_message(content))
                 pre = 'user'
 
-        return histories[-(limit):]
+        self.history = histories[-(limit):]
 
     async def decide_if_resp(self) -> bool:
         time = self.ctx.message.created_at.astimezone(timezone(timedelta(hours=8))).strftime("%Y/%m/%d %H:%M:%S")
-        think, result, history = self.client.chat(
+        think, result, history = await self.client.chat(
             prompt=f'請判斷以下句子是否需要回覆: <discord_message channelId={self.ctx.channel.id} userName={self.ctx.author.name} userId={self.ctx.author.id} messageId={self.ctx.message.id} time={time}> {self.ctx.message.content} </discord_message>',
             is_enable_tools=False,
             max_completion_tokens=1000,
-            if_get_extra_user_info=False
+            if_get_extra_user_info=False,
+            history=self.history
         )
-        return result == 'True'
+        return result.lower().strip() == 'true'
     
     async def get_response_example(self) -> str:
         payload = await search(self.ctx.message.content, QdrantCollectionName.yinxi_response_example, num=10)
         return '\n'.join([p['text'] for p in payload])
         
     async def call(self):
+        time = self.ctx.message.created_at.astimezone(timezone(timedelta(hours=8))).strftime("%Y/%m/%d %H:%M:%S")
         think, result, self.history = await self.client.chat(
-            self.ctx.message.content,
+            prompt_format.format(
+                channelId=self.ctx.channel.id, 
+                userName=self.ctx.author.global_name, 
+                userId=self.ctx.author.id, 
+                messageId=self.ctx.message.id, 
+                time=time, 
+                content=self.ctx.message.content
+            ),
             history=self.history,
             temperature=1.2,
             repeat_penalty=1.3,
             frequency_penalty=0.8,
             presence_penalty=1.0,
+            include_original_tools=True,
+            custom_tool_description=custom_tools_description,
+            custom_tools=chat_human_tool_map
         )
