@@ -31,14 +31,24 @@ def split_provider_model(provider_and_model: str) -> Tuple[str, str]:
     Returns:
         Tuple[str, str]: _description_
     """    
-    match = re.match(r"(.*?)\s*:\s*(.*)", provider_and_model.strip())
+    provider_and_model = provider_and_model.strip()
 
-    if match:
-        provider = match.group(1)
-        model = match.group(2)
+    # Fallback to standard "provider:model" format
+    standard_match = re.match(r"(.*?)\s*:\s*(.*)", provider_and_model)
+    if standard_match:
+        provider = standard_match.group(1)
+        model = standard_match.group(2)
         return provider, model
-    
-    return '', provider_and_model.strip()
+
+    # Try to match formats like "[PROVIDER] MODEL:12345"
+    bracket_match = re.match(r"\[(.*?)\]\s*(.*?)\s*:\s*(.*)", provider_and_model)
+    if bracket_match:
+        provider = bracket_match.group(1)
+        model = f"{bracket_match.group(2)}:{bracket_match.group(3)}"
+        return provider, model
+
+    # If no match, assume entire string is model
+    return '', provider_and_model
 
 
 async def model_select(original_model: str) -> Union[AsyncOpenAI, None]:
