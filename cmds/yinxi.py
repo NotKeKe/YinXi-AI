@@ -112,4 +112,5 @@ class YinXi(commands.Cog):
         await ctx.send(view=view, embed=eb)
 
 async def setup(bot):
-    await bot.add_cog(YinXi(bot))
+    # await bot.add_cog(YinXi(bot))
+    ...

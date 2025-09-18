@@ -57,6 +57,7 @@ services:
     environment:
       - OLLAMA_ORIGINS=*
       - OLLAMA_KEEP_ALIVE=60
+      - OLLAMA_FLASH_ATTENTION=1
     deploy:
       resources:
         limits:

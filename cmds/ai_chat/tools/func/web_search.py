@@ -1,12 +1,9 @@
-from aiohttp import ClientSession
+from aiohttp import ClientSession, ConnectionTimeoutError
 from typing import AsyncGenerator
 import logging
-
-from crawl4ai.docker_client import Crawl4aiDockerClient  
-from crawl4ai import BrowserConfig, CrawlerRunConfig  
-from crawl4ai.content_filter_strategy import PruningContentFilter  
-from crawl4ai.markdown_generation_strategy import DefaultMarkdownGenerator  
-from crawl4ai.models import CrawlResult
+import newspaper
+from zoneinfo import ZoneInfo
+from asyncio import to_thread
 
 from core.functions import DEVICE_IP
 
@@ -14,6 +11,66 @@ NOT_AVAILABLE = 'web_search is not available'
 logger = logging.getLogger(__name__)
 
 async def web_search(keywords: str, time_range: str = 'year', language: str = 'zh-TW') -> str:
+    time_range = ('month' if time_range.lower().strip() not in ('year', 'month', 'week', 'day') else time_range.lower().strip()) if time_range else None
+
+    params = {
+        'q': keywords,
+        'format': 'json',
+        'safesearch': 2,
+        'language': language,
+        **({'time_range': time_range} if time_range is not None and time_range != '' else {}),
+    }
+
+    try:
+        session = ClientSession()
+
+        # Get urls
+        async with session.get(f'http://{DEVICE_IP}:8080', params=params) as resp:
+            if resp.status != 200:
+                return NOT_AVAILABLE
+            
+            try:
+                data = await resp.json()
+            except Exception as e:
+                print(f'Error while calling web_search: {e}')
+                return NOT_AVAILABLE
+            
+        urls = [item['url'] for item in data['results']][:10]
+
+        # fetch web site content
+        results = []
+        def run():
+            for i, url in enumerate(urls):
+                try:
+                    article = newspaper.article(url, 'zh')
+                    title = article.title
+                    publish_time = article.publish_date
+                    publish_time = publish_time.astimezone(ZoneInfo("Asia/Taipei")).strftime('%Y-%m-%d %H:%M:%S') if publish_time else 'Unknown'
+                    text = article.text_cleaned.strip()
+                    text = text[:2000] + ('...(字數大於2000部分省略)' if len(text) >= 2000 else '')
+                    if not text: continue
+                    
+                    results.append(f'<search_result id={i+1} title="{title}" publish_time="{publish_time}" url="{url}"> {text} </search_result id={i+1}>')
+                except newspaper.exceptions.ArticleException:
+                    ...
+                except:
+                    logger.error('Error accured: ', exc_info=True)
+
+        await to_thread(run)
+        return '\n'.join(results)
+    except Exception as e:
+        logger.error('Error accured at web_search: ', exc_info=True)
+        return NOT_AVAILABLE
+    finally:
+        await session.close()
+                
+
+async def not_available_web_search(keywords: str, time_range: str = 'year', language: str = 'zh-TW') -> str:
+    from crawl4ai.docker_client import Crawl4aiDockerClient  
+    from crawl4ai import BrowserConfig, CrawlerRunConfig  
+    from crawl4ai.content_filter_strategy import PruningContentFilter  
+    from crawl4ai.markdown_generation_strategy import DefaultMarkdownGenerator  
+    from crawl4ai.models import CrawlResult
     final_result = []
     try:
         time_range = ('day' if time_range.lower().strip() not in ('year', 'month', 'week', 'day') else time_range.lower().strip()) if time_range else None

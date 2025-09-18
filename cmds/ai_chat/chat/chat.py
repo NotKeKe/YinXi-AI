@@ -386,8 +386,8 @@ class Chat:
             **({'reasoning': think.strip()} if think else {})
         })
 
-        if provider.lower() in ('ollama', 'lmstudio') and total_tokens >= 10000: await self.summarize_history(history)
-        elif provider.lower() in ('lmstudio', 'cerebras') and total_tokens >= 30000: await self.summarize_history(history)
+        if provider.lower() in ('ollama', 'lmstudio') and total_tokens >= 10000: history = await self.summarize_history(history)
+        elif provider.lower() in ('lmstudio', 'cerebras') and total_tokens >= 30000: history = await self.summarize_history(history)
         elif total_tokens > 62000: history = await self.summarize_history(history)
 
         def replace_backticks_in_parentheses(s):

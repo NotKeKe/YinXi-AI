@@ -2,8 +2,9 @@ from qdrant_client.models import Filter, MatchValue, FieldCondition
 
 from core.qdrant import QdrantCollectionName
 from cmds.vector.call.call import search, delete
+from core.functions import UnixToReadable
 
-async def search_user_long_term_memory(userID: int, query: str, nums: int = 5) -> str:
+async def search_user_long_term_memory(userID: int, query: str, nums: int = 5) -> str: # TODO: should include user_id
     ft = Filter(
         must=[
             FieldCondition(
@@ -13,7 +14,7 @@ async def search_user_long_term_memory(userID: int, query: str, nums: int = 5) -
     )
     data = await search(query, QdrantCollectionName.user_long_term_memory, ft, nums)
 
-    return '\n'.join([f"<long_term_memory id={d.get('uuid', 'None')} time={d.get('time', 'None')}>{d.get('text', '')}</long_term_memory>" for d in data])
+    return '\n'.join([f"<long_term_memory id={d.get('uuid', 'None')} time={UnixToReadable(d.get('time')) if d.get('time') else 'none'}>{d.get('text', '')}</long_term_memory>" for d in data])
 
 async def delete_user_long_term_memory(userID: int, uuid: str) -> str:
     try:

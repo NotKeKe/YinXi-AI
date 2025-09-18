@@ -57,7 +57,7 @@ class YinXiRun:
         except:
             logger.error('Error accured at YinXi run: ', exc_info=True)
 
-    async def get_passed_history(self):
+    async def get_passed_history(self): #TODO: 邏輯做錯了，應該取得 role 後，在轉為 prompt_format。
         '''
         會將 history 當中的第一則訊息設置為 user message
         '''

@@ -414,9 +414,10 @@ class AIChannelTwo(Cog_Extension):
                 data = await collection.find_one({'channel': ctx.channel.id})
                 if not data:
                     return await ctx.send(await ctx.interaction.translate('send_show_ai_channel_model_channel_not_found'))
+                provider = data.get('provider')
                 model = data.get('model')
                 
-                await ctx.send((await ctx.interaction.translate('send_show_ai_channel_model_model')).format(model=model))
+                await ctx.send((await ctx.interaction.translate('send_show_ai_channel_model_model')).format(model=f'{provider}:**{model}**'))
         except:
             logger.error('Error accured at show_ai_channel_model: ', exc_info=True)
 

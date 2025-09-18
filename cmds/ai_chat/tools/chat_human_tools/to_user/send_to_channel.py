@@ -12,5 +12,7 @@ async def send_to_channel(text: str, channelID: str, replied: bool = False, mess
             await msg.reply(text)
         else:
             await channel.send(text)
+
+        return '訊息已成功傳送。'
     except Exception as e:
         return f'Error: {str(e)}'
