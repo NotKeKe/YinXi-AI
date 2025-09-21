@@ -91,7 +91,8 @@
         "custom_vector_database_search": "自定义向量知识库_查询",
         "custom_vector_database_delete": "自定义向量知识库_删除",
         "custom_vector_database_rename": "向量自定义知识库_改名",
-        "clear_ai_channel_history": "清除ai频道历史纪录"
+        "clear_ai_channel_history": "清除ai频道历史纪录",
+        "tts": "文字转语音"
     },
     "description": {
         "translate": "翻译一些文字",
@@ -185,7 +186,8 @@
         "custom_vector_database_search": "可以使用关键字测试你的搜寻会出现什么结果",
         "custom_vector_database_delete": "将你自定义的某个知识库完全删除",
         "custom_vector_database_rename": "改你之前上传的知识库的名称",
-        "clear_ai_channel_history": "清除ai频道历史纪录，不会对这个频道造成任何影响，只会更改我这里的数据库"
+        "clear_ai_channel_history": "清除ai频道历史纪录，不会对这个频道造成任何影响，只会更改我这里的数据库",
+        "tts": "文字转语音"
     },
     "params_desc": {
         "keep_time": "输入你要音汐什么时候提醒，会用AI判断时间",
@@ -274,7 +276,10 @@
         "custom_vector_database_upload_file": "在这里上传你的知识库档案，目前仅支援 .txt 与 .md",
         "custom_vector_database_upload_title": "在这里帮你的知识库取个名字吧~ 这样以后比较好找",
         "custom_vector_database_search_query": "在此输入你要搜寻的关键字",
-        "custom_vector_database_delete_database": "选择你要删除的知识库名称"
+        "custom_vector_database_delete_database": "选择你要删除的知识库名称",
+        "tts_sample_voice_file": "在此上传一个音档，用于克隆声音",
+        "tts_speed": "在此输入讲话速度，范围在 0 ~ 2.0 之间，预设为 1.0",
+        "tts_lang": "选择一个语言"
     },
     "components": {
         "yin_xi": "音汐",
@@ -798,6 +803,8 @@
             "title": "确定要删除这个 AI 频道的历史纪录吗 (只会删除音汐AI的数据库，不会对这个频道做任何事)"
         }],
         "send_clear_ai_channel_history_success": "成功删除 AI 频道历史纪录",
-        "send_clear_ai_channel_history_cancel": "已取消操作"
+        "send_clear_ai_channel_history_cancel": "已取消操作",
+        "send_tts_speed_limit": "speed 应该要在 0 ~ 2.0 之间 (可为小数点)",
+        "send_tts_duration_limit": "你上传了过长的音讯欸:thinking:  要不试试短一点的? (60秒内)"
     }
 }

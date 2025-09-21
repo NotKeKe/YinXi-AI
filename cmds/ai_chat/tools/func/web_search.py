@@ -51,7 +51,7 @@ async def web_search(keywords: str, time_range: str = 'year', language: str = 'z
                     if not text: continue
                     
                     results.append(f'<search_result id={i+1} title="{title}" publish_time="{publish_time}" url="{url}"> {text} </search_result id={i+1}>')
-                except newspaper.exceptions.ArticleException:
+                except (newspaper.exceptions.ArticleException, UnicodeEncodeError):
                     ...
                 except:
                     logger.error('Error accured: ', exc_info=True)

@@ -12,7 +12,7 @@ async def connection_check() -> bool:
         async with aiohttp.ClientSession() as session:
             async with session.get(f'http://{OLLAMA_IP}:1239') as resp:
                 await redis_client.set('lmstudio_is_connected', 1 if resp.status == 200 else 0)
-    except aiohttp.ConnectionTimeoutError:
+    except (aiohttp.ClientConnectorError, aiohttp.ConnectionTimeoutError):
         await redis_client.set('lmstudio_is_connected', 0)
 
 async def get_connection_status() -> bool:

@@ -90,7 +90,8 @@
         "custom_vector_database_search": "custom_vector_database_search",
         "custom_vector_database_delete": "custom_vector_database_delete",
         "custom_vector_database_rename": "custom_vector_database_rename",
-        "clear_ai_channel_history": "clear_ai_channel_history"
+        "clear_ai_channel_history": "clear_ai_channel_history",
+        "tts": "tts"
     },
     "description": {
         "translate": "Translate some text",
@@ -183,7 +184,8 @@
         "custom_vector_database_search": "You can use keywords to test what results your search will show",
         "custom_vector_database_delete": "Completely delete one of your custom knowledge bases",
         "custom_vector_database_rename": "Rename a knowledge base you previously uploaded",
-        "clear_ai_channel_history": "Clear AI chat history (only affects your local database, not the channel)."
+        "clear_ai_channel_history": "Clear AI chat history (only affects your local database, not the channel).",
+        "tts": "Text to speech"
     },
     "params_desc": {
         "keep_time": "Enter when you want YinXi to remind you, AI will be used to determine the time",
@@ -270,7 +272,10 @@
         "custom_vector_database_upload_file": "Upload your knowledge base file here, currently only .txt and .md are supported",
         "custom_vector_database_upload_title": "Give your knowledge base a name here~ This way it will be easier to find later",
         "custom_vector_database_search_query": "Enter the keywords you want to search here",
-        "custom_vector_database_delete_database": "Select the name of the knowledge base you want to delete"
+        "custom_vector_database_delete_database": "Select the name of the knowledge base you want to delete",
+        "tts_sample_voice_file": "Upload an audio file here to clone the voice",
+        "tts_speed": "Enter the speaking speed here, ranging from 0 to 2.0, default is 1.0",
+        "tts_lang": "Select a language"
     },
     "components": {
         "yin_xi": "YinXi",
@@ -791,6 +796,8 @@
             "title": "Are you sure you want to delete the history of this AI channel (only Sound AI's database will be deleted, no changes will be made to this channel)?"
         }],
         "send_clear_ai_channel_history_success": "Successfully deleted AI channel history",
-        "send_clear_ai_channel_history_cancel": "Operation cancelled"
+        "send_clear_ai_channel_history_cancel": "Operation cancelled",
+        "send_tts_speed_limit": "Speed should be between 0 and 2.0 (can be a decimal)",
+        "send_tts_duration_limit": "You've uploaded an audio that's too long:thinking: How about trying a shorter one? (Within 60 seconds)"
     }
 }

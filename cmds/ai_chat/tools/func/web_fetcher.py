@@ -40,9 +40,9 @@ async def web_fetcher(url: str) -> str:
             index = 1
             async for result in results:
                 if result.success:
-                    final_result.append(f'<web_search id={index} source_url: {result.url}>{result.markdown.fit_markdown}</web_search id={index}>')
+                    final_result.append(f'<web_fetcher id={index} source_url: {result.url}>{result.markdown.fit_markdown}</web_fetcher id={index}>')
                     index += 1
     except:
-        logger.error('Error accred at web_search function: ', exc_info=True)
+        logger.error('Error accred at web_fetcher function: ', exc_info=True)
     finally:
         return '\n'.join(final_result) if final_result else "web_fetcher didn't find any answer."

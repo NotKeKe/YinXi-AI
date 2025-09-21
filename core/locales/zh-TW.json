@@ -91,7 +91,8 @@
         "custom_vector_database_search": "自定義向量知識庫_查詢",
         "custom_vector_database_delete": "自定義向量知識庫_刪除",
         "custom_vector_database_rename": "向量自定義知識庫_改名",
-        "clear_ai_channel_history": "清除ai頻道歷史紀錄"
+        "clear_ai_channel_history": "清除ai頻道歷史紀錄",
+        "tts": "文字轉語音"
     },
     "description": {
         "translate": "翻譯一些文字",
@@ -185,7 +186,8 @@
         "custom_vector_database_search": "可以使用關鍵字測試你的搜尋會出現什麼結果",
         "custom_vector_database_delete": "將你自定義的某個知識庫完全刪除",
         "custom_vector_database_rename": "改你之前上傳的知識庫的名稱",
-        "clear_ai_channel_history": "清除ai頻道歷史紀錄，不會對這個頻道造成任何影響，只會更改我這裡的數據庫"
+        "clear_ai_channel_history": "清除ai頻道歷史紀錄，不會對這個頻道造成任何影響，只會更改我這裡的數據庫",
+        "tts": "文字轉語音"
     },
     "params_desc": {
         "keep_time": "輸入你要音汐什麼時候提醒，會用AI判斷時間",
@@ -273,7 +275,10 @@
         "custom_vector_database_upload_file": "在這裡上傳你的知識庫檔案，目前僅支援 .txt 與 .md",
         "custom_vector_database_upload_title": "在這裡幫你的知識庫取個名字吧~ 這樣以後比較好找",
         "custom_vector_database_search_query": "在此輸入你要搜尋的關鍵字",
-        "custom_vector_database_delete_database": "選擇你要刪除的知識庫名稱"
+        "custom_vector_database_delete_database": "選擇你要刪除的知識庫名稱",
+        "tts_sample_voice_file": "在此上傳一個音檔，用於克隆聲音",
+        "tts_speed": "在此輸入講話速度，範圍在 0 ~ 2.0 之間，預設為 1.0",
+        "tts_lang": "選擇一個語言"
     },
     "components": {
         "yin_xi": "音汐",
@@ -797,6 +802,8 @@
             "title": "隱私政策",
             "description": "> **重要提示**  \n> 在使用本機 Qdrant 進行向量存儲前，請先閱讀以下條款並點擊 ✅ 同意或 ❌ 不同意。若您選擇不同意，我們將不會收集或保存您的對話內容。\n\n---\n\n## 1️⃣ 我們會收集哪些資訊  \n- **channelID**：對話發生的 Discord 頻道 ID（用於定位資料來源）  \n- **userID**：您在 Discord 的唯一識別碼 \n- **userName**：您的 Discord 名稱（文字顯示，可被使用者自行更改）  \n- **messageID**：對話訊息的唯一 ID（用於查詢或刪除特定訊息）  \n- **time**：訊息發送時間戳（YYYY/MM/DD HH:MM:SS 格式，僅作為內部紀錄）  \n- **text**：實際對話文字內容（將被轉換成向量以提升機器人回應品質）\n\n> ❗️我們不會收集或存儲任何圖片，或者拒絕此條款的使用者訊息。若在對話中自動出現此類資料，我們將不進行向量化。\n\n---\n\n## 2️⃣ 資料收集目的  \n- **提升機器人回應品質**：將 `text` 轉為向量，方便後續做為聊天歷史之內容。  \n- **做為頻道的歷史紀錄搜尋**：目前此功能尚未實裝，但未來有可能做出相關功能，並且只能在相同頻道內搜尋。\n\n---\n\n## 3️⃣ 資料儲存方式  \n1. **本地 Qdrant**：僅在我們的**本地NAS**內部部署，未設密碼且 ip, port 不公開。\n2. **備份**：每天都會有本地備份，確保資料不會上傳到任何雲端服務。 \n3. **資料保留期限**：除非使用者另行要求刪除，資料將持續保存在 Qdrant 內。\n\n---\n\n## 4️⃣ 使用者同意與選擇  \n- 點擊 ✅ 表示「我已閱讀並同意上述條款，我願將對話內容存入本機 Qdrant」。  \n- 點擊 ❌ 表示「我不同意，請勿收集或儲存我的資料」。\n\n> ❗️一旦點選 ✅，即代表您授權我們進行向量化並保存。若在之後想撤回同意，可再次使用此指令，並點擊 ❌，資料將會被刪除。"
         }],
-        "send_yinxi_chat_command": "同意狀態: `{enable}`"
+        "send_yinxi_chat_command": "同意狀態: `{enable}`",
+        "send_tts_speed_limit": "speed 應該要在 0 ~ 2.0 之間 (可為小數點)",
+        "send_tts_duration_limit": "你上傳了過長的音訊欸:thinking:  要不試試短一點的? (60秒內)"
     }
 }
