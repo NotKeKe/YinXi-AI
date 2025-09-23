@@ -263,35 +263,41 @@ class AIChat(Cog_Extension):
             await ctx.send((await ctx.interaction.translate('send_video_generate_fail')).format(e=e), ephemeral=True)
 
     @commands.hybrid_command(name=locale_str('tts'), description=locale_str('tts'))
+    @app_commands.choices(
+        tts=[Choice(name=t, value=t) for t in ('xtts', 'f5tts')]
+    )
     @app_commands.autocomplete(lang=xtts_available_lang_autocomplete)
     @app_commands.describe(sample_voice_file=locale_str('tts_sample_voice_file'), speed=locale_str('tts_speed'), lang=locale_str('tts_lang'))
-    async def text_to_speech(self, ctx: commands.Context, text: str, sample_voice_file: discord.Attachment, speed: float = 1.0, lang: str = 'zh-cn'):
+    async def text_to_speech(self, ctx: commands.Context, text: str, sample_voice_file: Optional[discord.Attachment] = None, speed: float = 1.0, lang: str = 'zh-cn', tts: str = 'f5tts'):
         async with ctx.typing():
             if not 0 < speed <= 2.0: return await ctx.send(await ctx.interaction.translate('send_tts_speed_limit'))
 
-            file_bytes = await sample_voice_file.read()
-            audio = MutagenFile(io.BytesIO(file_bytes))
-            duration_sec = audio.info.length
-            if duration_sec > 60: return await ctx.send(await ctx.interaction.translate('send_tts_duration_limit'))
-
-            file_name = sample_voice_file.filename
-            content_type = sample_voice_file.content_type or "application/octet-stream"
-
             form = aiohttp.FormData()
-            form.add_field(
-                name="speaker_wav",
-                value=file_bytes,
-                filename=file_name,
-                content_type=content_type
-            )
+
+            if sample_voice_file:
+                file_bytes = await sample_voice_file.read()
+                audio = MutagenFile(io.BytesIO(file_bytes))
+                duration_sec = audio.info.length
+                if duration_sec > 60: return await ctx.send(await ctx.interaction.translate('send_tts_duration_limit'))
+
+                file_name = sample_voice_file.filename
+                content_type = sample_voice_file.content_type or "application/octet-stream"
+
+                form.add_field(
+                    name="speaker_wav",
+                    value=file_bytes,
+                    filename=file_name,
+                    content_type=content_type
+                )
 
             form.add_field("text", text)
             form.add_field("speed", str(speed))
-            form.add_field("lang", lang)
+            if tts == 'xtts':
+                form.add_field("lang", lang)
             
             try:
                 async with aiohttp.ClientSession() as session:
-                    async with session.post(f'http://{OLLAMA_IP}:11198/generate', data=form, timeout=60) as resp:
+                    async with session.post(f'http://{OLLAMA_IP}:11198/generate/{tts}', data=form, timeout=60) as resp:
                         result = await resp.read()
             except aiohttp.ConnectionTimeoutError:
                 return await ctx.send('Connection timeout, please try again later')
