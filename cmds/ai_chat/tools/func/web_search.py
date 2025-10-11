@@ -3,12 +3,14 @@ from typing import AsyncGenerator
 import logging
 import newspaper
 from zoneinfo import ZoneInfo
-from asyncio import to_thread
+from asyncio import to_thread, Semaphore, gather
 
 from core.functions import DEVICE_IP
 
 NOT_AVAILABLE = 'web_search is not available'
 logger = logging.getLogger(__name__)
+
+searching_func_limit = Semaphore(10)
 
 async def web_search(keywords: str, time_range: str = 'year', language: str = 'zh-TW') -> str:
     time_range = ('month' if time_range.lower().strip() not in ('year', 'month', 'week', 'day') else time_range.lower().strip()) if time_range else None
@@ -38,25 +40,33 @@ async def web_search(keywords: str, time_range: str = 'year', language: str = 'z
         urls = [item['url'] for item in data['results']][:10]
 
         # fetch web site content
-        results = []
-        def run():
-            for i, url in enumerate(urls):
-                try:
-                    article = newspaper.article(url, 'zh')
-                    title = article.title
-                    publish_time = article.publish_date
-                    publish_time = publish_time.astimezone(ZoneInfo("Asia/Taipei")).strftime('%Y-%m-%d %H:%M:%S') if publish_time else 'Unknown'
-                    text = article.text_cleaned.strip()
-                    text = text[:2000] + ('...(字數大於2000部分省略)' if len(text) >= 2000 else '')
-                    if not text: continue
-                    
-                    results.append(f'<search_result id={i+1} title="{title}" publish_time="{publish_time}" url="{url}"> {text} </search_result id={i+1}>')
-                except (newspaper.exceptions.ArticleException, UnicodeEncodeError):
-                    ...
-                except:
-                    logger.error('Error accured: ', exc_info=True)
+        def process_article(i, url):
+            try:
+                article = newspaper.article(url, 'zh')
+                title = article.title
+                publish_time = article.publish_date
+                publish_time = publish_time.astimezone(ZoneInfo("Asia/Taipei")).strftime('%Y-%m-%d %H:%M:%S') if publish_time else 'Unknown'
+                text = article.text_cleaned.strip()
+                text = text[:2000] + ('...(字數大於2000部分省略)' if len(text) >= 2000 else '')
+                if not text:
+                    return None
+                return f'<search_result id={i+1} title="{title}" publish_time="{publish_time}" url="{url}"> {text} </search_result id={i+1}>'
+            except (newspaper.exceptions.ArticleException, UnicodeEncodeError):
+                return None
+            except Exception:
+                logger.error(f'Error occurred on {url}', exc_info=True)
+                return None
 
-        await to_thread(run)
+        async def fetch_with_limit(i, url):
+            async with searching_func_limit:
+                return await to_thread(process_article, i, url)
+            
+        tasks = [fetch_with_limit(i, url) for i, url in enumerate(urls)]
+        results = []
+        for result in (await gather(*tasks)):
+            if result:
+                results.append(result)
+
         return '\n'.join(results)
     except Exception as e:
         logger.error('Error accured at web_search: ', exc_info=True)
