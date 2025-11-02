@@ -84,7 +84,7 @@ async def long_term_memory(userID: int, user_prompt: str, assistant_prompt: str,
             logger.info('Save a long_term_memory to vector db')
             if ctx:
                 func = ctx.interaction.followup.send if ctx.interaction else ctx.send
-                await func(f'Saved to long_term_memory {f"({args.get('memory', '')})"}', ephemeral=True)
+                # await func(f'Saved to long_term_memory {f"({args.get('memory', '')})"}', ephemeral=True)
         except: 
             logger.error("Error accured at long_term_memory's function:", exc_info=True)
 

@@ -6,6 +6,7 @@ import traceback
 import io
 
 from cmds.ai_chat.tools.map import tools
+from cmds.ai_chat.utils import md_table_convert
 
 from core.functions import testing_guildID, is_async
 from core.classes import Cog_Extension
@@ -39,6 +40,14 @@ class ToolTest(Cog_Extension):
         except Exception as e:
             traceback.print_exc()
             await inter.followup.send(f'{function_name} failed run.\nReason: {str(e)}')
+
+    @commands.command()
+    async def convert_html_to_md(self, ctx: commands.Context, * , text: str):
+        async with ctx.typing():
+            result = await md_table_convert(text)
+            file = io.BytesIO(result)
+            file.seek(0)
+            await ctx.send(file=discord.File(file, 'result.png'))
 
 
 async def setup(bot):

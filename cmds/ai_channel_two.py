@@ -6,6 +6,8 @@ import logging
 import openai
 import orjson
 import asyncio
+from io import BytesIO
+import traceback
 
 from core.functions import create_basic_embed, current_time, get_attachment, split_str_by_len_and_backtick, UnixNow, redis_client, is_KeJC, settings
 from core.classes import Cog_Extension, get_bot
@@ -15,7 +17,7 @@ from core.mongodb_clients import MongoDB_DB
 
 from cmds.ai_chat.on_msg import ai_channel_chat, chat_human_chat
 # from cmds.ai_chat.on_msg.self_growth import SelfGrowth
-from cmds.ai_chat.utils import model_autocomplete, to_user_message, to_assistant_message, add_think_button, add_history_button, split_provider_model
+from cmds.ai_chat.utils import model_autocomplete, to_user_message, to_assistant_message, add_think_button, add_history_button, split_provider_model, md_table_convert
 
 logger = logging.getLogger(__name__)
 
@@ -239,6 +241,17 @@ class AIChannelTwo(Cog_Extension):
             view = discord.ui.View()
             await add_history_button(msg, view, complete_history)
             await add_think_button(msg, view, think)
+
+            # send markdown image
+            try:
+                image_bytes = await md_table_convert(result)
+                if image_bytes:
+                    image_file = BytesIO(image_bytes)
+                    image_file.seek(0)
+                    file = discord.File(image_file, filename='result.png')
+                    await ctx.send(file=file)
+            except:
+                traceback.print_exc()
             
             timeout = await view.wait()
             if timeout: await msg.edit(view=None)

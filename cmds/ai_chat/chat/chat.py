@@ -170,7 +170,7 @@ class Chat:
         return think, result, tool_calls, total_tokens
 
     
-    async def process_tool_calls(self, tool_calls: list, history: list, custom_tools: Dict[str, Callable[..., Union[Any, Awaitable[Any]]]] = None, include_original_tools: bool = False):
+    async def process_tool_calls(self, tool_calls: list, history: list, custom_tools: Dict[str, Callable[..., Union[Any, Awaitable[Any]]]] = None, include_original_tools: bool = False, think: str = None):
         '''Love gemini :>
         call function and add result to history
         '''
@@ -186,7 +186,8 @@ class Chat:
                     "type": "function",
                     "function": {"name": tc['name'], "arguments": tc['arguments']}
                 } for tc in tool_calls
-            ]
+            ],
+            **({'reasoning': think} if think else {})
         }
         history.append(assistant_message)
 
@@ -369,7 +370,7 @@ class Chat:
             think, result, tool_calls, total_tokens = await self.process_completion(completion)
             if tool_calls:
                 if provider.lower() == 'lmstudio': await asyncio.sleep(1)
-                await self.process_tool_calls(tool_calls, history, custom_tools, include_original_tools)
+                await self.process_tool_calls(tool_calls, history, custom_tools, include_original_tools, think)
                 completion = await call()
                 call_times += 1
             else:
