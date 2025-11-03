@@ -6,6 +6,7 @@ from ..utils.client import AsyncClient
 from .new_question import NewQuestion
 from .sub_questions import SubQuestions
 from .gener_keywords import GenerKeywords
+from .search import Search
 
 from .information import Info
 from .utils import *
@@ -34,3 +35,9 @@ class DeepResearcher:
         await GenerKeywords(self.info).run()
 
         # search
+        self.info.curr_states = 'search'
+        await Search(self.info).run()
+
+        # summary search results
+        self.info.curr_states = 'summary'
+        

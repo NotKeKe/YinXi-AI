@@ -4,6 +4,7 @@ from discord.ext import commands
 from openai import AsyncOpenAI
 import asyncio
 from textwrap import dedent
+import hashlib
 
 from ..utils.client import AsyncClient
 from .utils import *
@@ -27,6 +28,9 @@ summary_all: 整合全部的 summary，並產出報告
 check: 檢查產出的報告，如有需要，再次執行(三)
 '''
 
+def _gener_hash(user_id: int, init_question: str) -> str:
+    return hashlib.sha256((str(user_id) + init_question).encode()).hexdigest()
+
 class Info:
     def __init__(self, ctx: commands.Context):
         self.ctx: commands.Context = ctx
@@ -35,6 +39,8 @@ class Info:
         self.client: AsyncOpenAI = self.get_client()
         self.model: str = 'openai/gpt-oss-20b'
         self._curr_states: states_type | None = None
+
+        self._uuid: str = ''
 
         # (一)
         self.init_question: str | None = None
@@ -86,3 +92,12 @@ class Info:
     def sub_questions(self, value: list[str] | None):
         self._sub_questions = value
         asyncio.create_task(send_message(self, f'Generated Sub Questions:\n```\n{"\n".join(value or [])}\n```', save_to_info=False))
+
+    @property
+    def uuid(self) -> str:
+        if not self.init_question: return ''
+        if self._uuid: return self._uuid
+
+        _hash = _gener_hash(self.ctx.author.id, self.init_question)
+        self._uuid = _hash
+        return self.uuid
