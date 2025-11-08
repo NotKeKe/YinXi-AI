@@ -1,9 +1,9 @@
 import markdown
 from bs4 import BeautifulSoup
-from urllib.parse import quote
 import asyncio
 from pathlib import Path
 import base64
+import time
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -27,14 +27,17 @@ css_style = f"""
         font-family: 'Iansui', 'Microsoft YaHei', 'Segoe UI', Arial, sans-serif;
         padding: 30px; 
         background-color: #f8f8f8;
+        text-align: center; /* **新增：讓內聯區塊 (.table-container) 水平居中** */
     }}
     .table-container {{
         padding: 20px;
         background-color: white;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         border-radius: 12px;
-        max-width: 1200px;
-        margin: 0 auto;
+        /* 保持 inline-block */
+        display: inline-block; 
+        margin: 0; /* 移除 margin: auto 的需求 */
+        /* 移除 overflow-x: auto; */
     }}
     .table-title {{
         margin-top: 30px;
@@ -45,18 +48,27 @@ css_style = f"""
     }}
     .styled-markdown-table {{ 
         border-collapse: collapse; 
-        width: 100%;
-        min-width: 800px;
-        margin: 20px 0; 
+        /* **關鍵修改：移除 table-layout: fixed;** */
+        /* 讓表格使用預設的 auto 佈局，隨著內容展開 */
+        width: 100%; /* 讓表格充滿父容器 (table-container) */
+        /* 移除 min-width: 800px; */
+        margin: 0; /* 移除表格的 margin，避免多餘空間 */
         font-size: 14pt; 
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); 
         border-radius: 8px;
         overflow: hidden; 
     }}
     .spacer {{ height: 40px; }}
-    /* ... 其他表格樣式保持不變 ... */
     .styled-markdown-table thead tr {{ background-color: #2c3e50; color: #ffffff; text-align: center; font-weight: bold; }}
-    .styled-markdown-table th, .styled-markdown-table td {{ padding: 15px 20px; border: 1px solid #e0e0e0; vertical-align: top; line-height: 1.5; text-align: left; }}
+    /* 調整 th/td 樣式：移除 word-break 和 max-width 限制，讓文字自由展開 */
+    .styled-markdown-table th, .styled-markdown-table td {{ 
+        padding: 15px 20px; 
+        border: 1px solid #e0e0e0; 
+        vertical-align: top; 
+        line-height: 1.5; 
+        text-align: left; 
+        /* 移除強制斷行屬性 */
+    }}
     .styled-markdown-table tbody tr:nth-of-type(even) {{ background-color: #fcfcfc; }}
     .styled-markdown-table tbody tr:hover {{ background-color: #e8f0fe; transition: background-color 0.3s ease; }}
 </style>
@@ -83,17 +95,56 @@ def _get_png(full_html: str) -> bytes:
     options.add_argument("--headless=new")
     options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage") 
+
     driver = webdriver.Chrome(options=options)
     try:
-        driver.get("data:text/html;charset=utf-8," + quote(full_html))
+        driver.get("about:blank")
+        driver.execute_script("document.write(arguments[0]);", full_html)
         WebDriverWait(driver, 15).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "table.styled-markdown-table"))
+            EC.presence_of_element_located((By.CSS_SELECTOR, ".table-container"))
         )
         driver.execute_script("document.body.style.overflow = 'hidden';")
-        table = driver.find_element(By.CSS_SELECTOR, "table.styled-markdown-table")
-        box = table.rect
-        driver.set_window_size(box["width"]+100, box["height"]+290)
-        png_bytes = driver.get_screenshot_as_png()
+        
+
+        FINAL_WIDTH = driver.execute_script(
+            "return Math.max(document.documentElement.scrollWidth, document.body.scrollWidth);"
+        )
+        FINAL_HEIGHT = driver.execute_script(
+            "return Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);"
+        )
+
+        FINAL_BUFFER = 40 
+        
+        FINAL_WIDTH += FINAL_BUFFER
+        FINAL_HEIGHT += FINAL_BUFFER
+
+        driver.execute_script("document.body.style.overflow = 'auto';")
+        
+        # 解析度設定
+        driver.execute_cdp_cmd("Emulation.setDeviceMetricsOverride", {
+            "width": FINAL_WIDTH,
+            "height": FINAL_HEIGHT,
+            "deviceScaleFactor": 2,
+            "mobile": False
+        })
+
+        # 調整視窗大小
+        driver.set_window_rect(0, 0, FINAL_WIDTH, FINAL_HEIGHT)
+        WebDriverWait(driver, 30).until(
+            lambda d: d.execute_script("""
+            const sheets = [...document.styleSheets];
+            return sheets.every(s => !s.href || s.cssRules.length > 0);
+            """)
+        )
+
+        # 截圖
+        screenshot = driver.execute_cdp_cmd("Page.captureScreenshot", {
+            "format": "png",
+            # "fromSurface": True
+        })
+        png_bytes = base64.b64decode(screenshot['data'])
+
     finally:
         driver.quit()
 
@@ -101,18 +152,20 @@ def _get_png(full_html: str) -> bytes:
 
 async def md_table_convert(text: str) -> bytes | None:
     # get full html
+    text = text.strip()
     html = markdown.markdown(text, extensions=["tables"])
     if not html: return
 
     # find tables
     soup = BeautifulSoup(html, "html.parser")
     found_table = False
-    for table in soup.find_all("table"):
+    tables = soup.find_all("table")
+    for table in tables:
         table["class"] = table.get("class", []) + ["styled-markdown-table"]
         found_table = True
     if not found_table: return
 
-    html_content = str(soup)
+    html_content = "".join([str(t) for t in tables])
     if not html_content: return
     full_html = FULL_HTML_TEMPLATE.format(css_style=css_style, html_content=html_content)
 
