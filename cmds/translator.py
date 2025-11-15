@@ -27,6 +27,12 @@ class Translator(Cog_Extension):
     async def _translate_from_message(self, inter: Interaction, msg_id: str, to_lang: str = None):
         await inter.response.defer(ephemeral=True, thinking=True)
 
+        ctx = await commands.Context.from_interaction(inter)
+        if not inter.channel.permissions_for(inter.user).read_messages or not inter.channel.permissions_for(inter.user).read_message_history:
+            return await inter.followup.send(await inter.translate('send_output_chat_history_no_read_permission'))
+        if not inter.channel.permissions_for(ctx.me).read_message_history:
+            return await inter.followup.send(await inter.translate('send_output_chat_history_bot_no_read_permission'))
+
         try: msg_id = int(msg_id)
         except: return await inter.followup.send(await inter.translate('translate_from_message_invaild_msgid'))
 
