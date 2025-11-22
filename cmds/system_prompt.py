@@ -36,7 +36,7 @@ class SystemPrompt(Cog_Extension):
         if (await in_custom_system_prompt(ctx.author.id, name)): return await ctx.send(await ctx.interaction.translate('send_upload_custom_system_prompt_name_exist'))
 
         if file:
-            if file.filename.split('.')[0] not in ('txt', 'md'): return await ctx.send(await ctx.interaction.translate('send_upload_custom_system_prompt_file_type_error'))
+            if file.filename.split('.')[1] not in ('txt', 'md'): return await ctx.send(await ctx.interaction.translate('send_upload_custom_system_prompt_file_type_error'))
             content = (await file.read()).decode('utf-8')
         else:
             content = text

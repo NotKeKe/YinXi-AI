@@ -3,6 +3,7 @@ import logging
 import hashlib
 import orjson
 from openai.types.chat.chat_completion_message_tool_call import ChatCompletionMessageToolCall
+from openai import APIConnectionError
 from typing import List
 from datetime import datetime
 from textwrap import dedent
@@ -57,20 +58,25 @@ async def save_to_long_term_memory(userID: int, memory: str) -> None:
 async def long_term_memory(userID: int, user_prompt: str, assistant_prompt: str, exitst_info: str = None, ctx: commands.Context = None):
     system_prompt = await get_single_default_system_prompt('long_term_memory')
 
-    resp = await AsyncClient.self_ollama.chat.completions.create(
-        model='qwen3:0.6b-q4_K_M',
-        messages=to_system_message(system_prompt) + to_user_message(dedent(f'''
-                                                                    請看使用者的prompt，並根據需要調用工具存儲與使用者相關的資訊
-                                                                    使用者的ID為: {int(userID)}
-                                                                    如果使用者希望存儲已經存儲過的記憶，請不要調用工具
-                                                                    已經存在的記憶: ```{exitst_info}```
-                                                                    如果不需要調用工具，則只需回答「否」。
+    try:
+        resp = await AsyncClient.self_ollama.chat.completions.create(
+            model='qwen3:0.6b-q4_K_M',
+            messages=to_system_message(system_prompt) + to_user_message(dedent(f'''
+                                                                        請看使用者的prompt，並根據需要調用工具存儲與使用者相關的資訊
+                                                                        使用者的ID為: {int(userID)}
+                                                                        如果使用者希望存儲已經存儲過的記憶，請不要調用工具
+                                                                        已經存在的記憶: ```{exitst_info}```
+                                                                        如果不需要調用工具，則只需回答「否」。
 
-                                                                    使用者說: `{user_prompt}`
-                                                                    ''').strip()),
-        tools=tool_descrip,
-        tool_choice='auto'
-    )
+                                                                        使用者說: `{user_prompt}`
+                                                                        ''').strip()),
+            tools=tool_descrip,
+            tool_choice='auto'
+        )
+    except APIConnectionError:
+        logger.error('self_ollama APIConnectionError, please check self_ollama\'s connection status')
+        return
+
 
     async def get_tool_results(tool_calls: List[ChatCompletionMessageToolCall]) -> str:
         try:

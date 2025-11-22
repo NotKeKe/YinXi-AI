@@ -213,7 +213,7 @@ def is_KeJC(userID: int):
 def is_testing_guild():
     '''A guild checking function for commands.command'''
     def preficate(ctx: commands.Context):
-        return ctx.guild.id == testing_guildID
+        return ctx.guild.id == testing_guildID if ctx.guild else False
     return commands.check(preficate)
 
 def is_async(func) -> bool:
