@@ -8,6 +8,10 @@ import openai
 import aiohttp
 import io
 from mutagen import File as MutagenFile
+from datetime import datetime, timedelta, timezone
+from bson import ObjectId
+import asyncio
+import orjson
 
 from qdrant_client.models import Filter, MatchValue, FieldCondition
 
@@ -89,13 +93,13 @@ class AIChat(Cog_Extension):
             ls_history = None
             if history:
                 result = await collection.find_one({
-                    'title': history
+                    '_id': ObjectId(history)
                 })
-                if not result: return await ctx.send(f'Unknow error, cannot found any title called `{history}`')
+                if not result: return await ctx.send(f'Unknown error, cannot found any title called `{history}`')
                 ls_history = result.get('messages')
 
             if system_prompt:
-                system_prompt = from_name_to_system_prompt(ctx.author.id, system_prompt)
+                system_prompt = await from_name_to_system_prompt(ctx.author.id, system_prompt)
 
             vector_database = None
             if vector_database_name:
@@ -153,14 +157,34 @@ class AIChat(Cog_Extension):
 
             if result:
                 if history:
-                    await collection.update_one({'title': history}, {'$set': {'messages': complete_history}}, upsert=True)
+                    await collection.update_one({'_id': ObjectId(history)}, {'$set': {'messages': complete_history}}, upsert=True)
                 else:
                     title = await gener_title(complete_history)
-                    await collection.insert_one({
+                    insert_result = await collection.insert_one({
                         'title': title,
                         'messages': complete_history,
-                        'createAt': UnixNow()
+                        'createAt': datetime.now().astimezone(timezone(timedelta(hours=8))).isoformat(), # +8
                     })
+                    
+                    # add to redis
+                    async def add_to_redis(items: list[dict]):
+                        await redis_client.zadd( # type: ignore
+                            f'aichat_chat_history:{ctx.author.id}', 
+                            { # type: ignore
+                                orjson.dumps(item).decode(): datetime.fromisoformat(item.get('createAt', '1999-11-11T11:11:11+00:00')).timestamp()
+                                for item in items
+                                if item.get('createAt') and item.get('messages')
+                            }
+                        )
+                        await redis_client.expire(f'aichat_chat_history:{ctx.author.id}', 60) # 1 分鐘過期
+                    asyncio.create_task(add_to_redis(
+                        [{
+                                '_id': str(insert_result.inserted_id),
+                                'title': title, 
+                                'messages': complete_history, 
+                                'createAt': datetime.now().astimezone(timezone(timedelta(hours=8))).isoformat()
+                            }]
+                        ))
 
             timeout = await view.wait()
             if timeout: await msg.edit(view=None)
