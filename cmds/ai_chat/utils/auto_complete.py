@@ -72,17 +72,9 @@ async def chat_history_autocomplete(interaction: Interaction, current: str) -> L
     return [Choice(name=f'{title} ({time.strftime("%Y-%m-%d %H:%M:%S %Z")})'[:100], value=_id) for title, time, _id in data[:25] if title]
 
 async def model_autocomplete(interaction: Interaction, current: str) -> List[Choice[str]]:
-    result = await redis_client.get('aichat_available_models')
-    result = orjson.loads(result)
+    results: set[str] = await redis_client.smembers('aichat_available_models') # type: ignore
 
-    models = []
-    for provider, item in dict(result).items():
-        if provider == '_id': continue
-        if provider in high_model_providers:
-            if interaction.user.id not in high_model_users: continue
-        
-        for model in item:
-            models.append((provider, model))
+    models = [item.split(':', 1) for item in results]
 
     if current:
         models = [(provider, m) for provider, m in models if current.lower().strip() in m.lower().strip() or current.lower().strip() in provider.lower().strip()]

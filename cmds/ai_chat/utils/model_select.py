@@ -19,7 +19,8 @@ PROVIDERS = {
     'gemini': AsyncClient.gemini,
     'cerebras': AsyncClient.cerebras,
     'zhipu': AsyncClient.zhipu,
-    'self_ollama': AsyncClient.self_ollama
+    'self_ollama': AsyncClient.self_ollama,
+    'doubao': AsyncClient.doubao
 }
 
 def split_provider_model(provider_and_model: str) -> Tuple[str, str]:
@@ -58,21 +59,9 @@ async def model_select(original_model: str) -> Union[AsyncOpenAI, None]:
         return logger.error(f'Cannot split model: `{original_model}`')
 
     logger.info(f'Got {provider=}, {model=}, {original_model=}')
-
-    # db = db_client['aichat_available_models']
-    # collection = db['models']
-
-    # _id = 'model_setting'
-
-    # result = await collection.find_one({'_id': _id})
-
-    result = await redis_client.get('aichat_available_models')
-    result = orjson.loads(result)
-
-    for key in result:
-        if provider and key.lower().strip() not in provider.lower().strip(): continue
-
-        if model in set(result[key]):
-            return PROVIDERS[key]
         
+    exists = bool(await redis_client.sismember('aichat_available_models', f'{provider}:{model}')) # type: ignore
+    if exists:
+        return PROVIDERS[provider]
+
     return None
