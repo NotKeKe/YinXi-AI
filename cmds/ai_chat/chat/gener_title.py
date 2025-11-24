@@ -12,7 +12,11 @@ async def select_model() -> str:
 def get_last_user_input(history: list) -> str:
     for h in reversed(history):
         if h.get('role') == 'user':
-            item = h.get('content', '').strip()
+            item = h.get('content', '')
+            if isinstance(item, str):
+                item = item.strip()
+            elif isinstance(item, list):
+                item = item[0].get('text', '').strip()
             break
         
     return item or 'no_title'
