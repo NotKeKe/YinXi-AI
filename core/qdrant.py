@@ -7,3 +7,4 @@ class QdrantCollectionName:
     self_growth_database = 'self_growth_database'
     yinxi_passed_history = 'yinxi_passed_history'
     yinxi_response_example = 'yinxi_response_example'
+    daily_rag = 'daily_rag'
