@@ -379,16 +379,8 @@ class AIChannelTwo(Cog_Extension):
                 collection = db['CHANNELS']
 
                 provider, model = split_provider_model(model)
-
-                async def check_model():
-                    s_data = await redis_client.get('aichat_available_models')
-                    data: dict = orjson.loads(s_data)
-                    
-                    models = set([m for models in data.values() for m in models])
-
-                    return model in models
                 
-                if not (await check_model()):
+                if not (await redis_client.sismember('aichat_available_models', f'{provider}:{model}')): # type: ignore
                     return await ctx.send((await ctx.interaction.translate('send_change_ai_channel_model_not_available_model')).format(model=model))
 
                 if not (await collection.find_one({'channel': ctx.channel.id})):
@@ -396,7 +388,7 @@ class AIChannelTwo(Cog_Extension):
                 
                 await collection.update_one({'channel': ctx.channel.id}, {'$set': {'model': model, 'provider': provider, 'is_vision_model': is_vision_model}})
                 
-                await ctx.send((await ctx.interaction.translate('send_change_ai_channel_model_successfully_change_model')).format(model=model, is_vision_model=is_vision_model))
+                await ctx.send((await ctx.interaction.translate('send_change_ai_channel_model_successfully_change_model')).format(model=f'{provider}:{model}', is_vision_model=is_vision_model))
         except:
             logger.error('Error accured at change_ai_channel_model: ', exc_info=True)
 

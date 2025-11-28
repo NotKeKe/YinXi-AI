@@ -86,7 +86,7 @@ async def upsert(data: List[Dict[str, Any]], collection_name: str):
         embeddings = await get_embedding(texts)
 
         points = [PointStruct(
-                id=hash_id(data[i]['text'] + str(data[i].get('userID', i)), collection_name),
+                id=hash_id(data[i]['text'] + str(data[i].get('userID', '')), collection_name),
                 vector=embeddings[i],
                 payload=data[i]
             )

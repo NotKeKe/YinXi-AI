@@ -100,6 +100,8 @@ async def load():
             if filename.endswith('.py'):
                 await bot.load_extension(f'cmds.{filename[:-3]}')
                 print(f'嘗試載入cmds.{filename} (cost: {math_round(time.time()-now, 2)})')
+        except commands.errors.NoEntryPointError:
+            root_logger.warning(f"cmds.{filename} has not 'setup' function. (cost: {math_round(time.time()-now, 2)})")
         except Exception as e:
             # traceback.print_exc()
             root_logger.warning(f'出錯 When loading extension: {e} (cost: {math_round(time.time()-now, 2)})', exc_info=True)

@@ -211,14 +211,15 @@ class AIChat(Cog_Extension):
 
     @commands.hybrid_command(name=locale_str('image_generate'), description=locale_str('image_generate'))
     @app_commands.choices(
-        model=[
+        img_generator_model=[
             Choice(name='cogview-3-flash', value='cogview-3-flash')
         ]
     )
-    async def _image_gener(self, ctx: commands.Context, prompt: str, model: str = 'cogview-3-flash'):
+    @app_commands.autocomplete(prompt_generator_model=model_autocomplete)
+    async def _image_gener(self, ctx: commands.Context, prompt: str, img_generator_model: str = 'cogview-3-flash', prompt_generator_model: str = 'zhipu:glm-4-flash'):
         async with ctx.typing():
             try:
-                url, time = await image_generate(prompt, model)
+                visual_concept, url, time = await image_generate(prompt, img_generator_model, prompt_generator_model)
 
                 '''i18n'''
                 eb = load_translated(await ctx.interaction.translate('embed_image_generate'))[0]
@@ -229,10 +230,12 @@ class AIChat(Cog_Extension):
 
                 embed = create_basic_embed(title=eb_title, color=ctx.author.color)
                 embed.set_image(url=url)
-                embed.add_field(name=field_name, value=int(time))
-                embed.set_footer(text=f'Powered by {model}')
+                embed.add_field(name='Visual Concept', value=visual_concept, inline=False)
+                embed.add_field(name=field_name, value=int(time), inline=False)
+                embed.set_footer(text=f'Powered by {prompt_generator_model} with {img_generator_model}')
                 await ctx.send(embed=embed)
             except:
+                logger.error('Error accured at image_generate command', exc_info=True)
                 await ctx.send(await ctx.interaction.translate('send_image_generate_fail'), ephemeral=True)
 
     @commands.hybrid_command(name=locale_str('video_generate'), description=locale_str('video_generate'))
