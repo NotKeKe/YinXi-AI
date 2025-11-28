@@ -20,6 +20,9 @@ async def send(inter: Interaction, text: str) -> discord.File:
         await inter.followup.send(text)
 
 class ToolTest(Cog_Extension):
+    async def cog_load(self):
+        print(f'已載入「{__name__}」')
+
     @app_commands.command()
     @app_commands.guilds(discord.Object(id=testing_guildID))
     async def show_tools(self, inter: Interaction):

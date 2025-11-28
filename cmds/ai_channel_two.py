@@ -69,7 +69,7 @@ class AIChannelTwo(Cog_Extension):
         # self.self_growth = SelfGrowth()
 
     async def cog_load(self):
-        print(f'已載入{__name__}')
+        print(f'已載入「{__name__}」')
         # self.decrease_mood.start()
         # self.update_status.start()
         # self.keep_think_task = asyncio.create_task(chat_human.self_growth.run())

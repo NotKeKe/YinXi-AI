@@ -57,7 +57,7 @@ class AIChat(Cog_Extension):
         self.db = MongoDB_DB.aichat_chat_history
 
     async def cog_load(self):
-        print(f'已載入{__name__}')
+        print(f'已載入「{__name__}」')
 
     @commands.Cog.listener()
     async def on_ready(self):

@@ -12,7 +12,7 @@ from cmds.ai_chat.utils.prompt import upload_custom_system_prompt, in_custom_sys
 
 class SystemPrompt(Cog_Extension):
     async def cog_load(self):
-        print(f'已載入{__name__}')
+        print(f'已載入「{__name__}」')
 
     @commands.hybrid_command(name=locale_str('system_prompt_description'), description=locale_str('system_prompt_description'))
     async def system_prompt_description(self, ctx: commands.Context):
