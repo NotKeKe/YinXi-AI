@@ -4,14 +4,17 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: uv run main.py
     container_name: yinxiai-bot
     depends_on:
       - lrcapi
+      - mongodb
     environment:
       - LRCAPI_URL=http://lrcapi:28883
+    env_file:
+      - .env
     volumes:
       - .:/app
+      - /app/.venv
     restart: unless-stopped
   mongodb:
     image: mongo:8.0.12
