@@ -1764,19 +1764,6 @@ wheels = [
 ]
 
 [[package]]
-name = "ollama"
-version = "0.5.3"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "httpx" },
-    { name = "pydantic" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/91/6d/ae96027416dcc2e98c944c050c492789502d7d7c0b95a740f0bb39268632/ollama-0.5.3.tar.gz", hash = "sha256:40b6dff729df3b24e56d4042fd9d37e231cee8e528677e0d085413a1d6692394", size = 43331, upload-time = "2025-08-07T21:44:10.422Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/be/f6/2091e50b8b6c3e6901f6eab283d5efd66fb71c86ddb1b4d68766c3eeba0f/ollama-0.5.3-py3-none-any.whl", hash = "sha256:a8303b413d99a9043dbf77ebf11ced672396b59bec27e6d5db67c88f01b279d2", size = 13490, upload-time = "2025-08-07T21:44:09.353Z" },
-]
-
-[[package]]
 name = "onnxruntime"
 version = "1.22.1"
 source = { registry = "https://pypi.org/simple" }
@@ -1976,15 +1963,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/15/d5/f0486090eb18dd8710bf60afeaf638ba6817047c0c8ae5c6a25598665609/pandas-2.3.2-cp313-cp313t-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b37205ad6f00d52f16b6d09f406434ba928c1a1966e2771006a9033c736d30d2", size = 11883216, upload-time = "2025-08-21T10:27:59.302Z" },
     { url = "https://files.pythonhosted.org/packages/10/86/692050c119696da19e20245bbd650d8dfca6ceb577da027c3a73c62a047e/pandas-2.3.2-cp313-cp313t-musllinux_1_2_aarch64.whl", hash = "sha256:837248b4fc3a9b83b9c6214699a13f069dc13510a6a6d7f9ba33145d2841a012", size = 12699743, upload-time = "2025-08-21T10:28:02.447Z" },
     { url = "https://files.pythonhosted.org/packages/cd/d7/612123674d7b17cf345aad0a10289b2a384bff404e0463a83c4a3a59d205/pandas-2.3.2-cp313-cp313t-musllinux_1_2_x86_64.whl", hash = "sha256:d2c3554bd31b731cd6490d94a28f3abb8dd770634a9e06eb6d2911b9827db370", size = 13186141, upload-time = "2025-08-21T10:28:05.377Z" },
-]
-
-[[package]]
-name = "parsedatetime"
-version = "2.6"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/a8/20/cb587f6672dbe585d101f590c3871d16e7aec5a576a1694997a3777312ac/parsedatetime-2.6.tar.gz", hash = "sha256:4cb368fbb18a0b7231f4d76119165451c8d2e35951455dfee97c62a87b04d455", size = 60114, upload-time = "2020-05-31T23:50:57.443Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/9d/a4/3dd804926a42537bf69fb3ebb9fd72a50ba84f807d95df5ae016606c976c/parsedatetime-2.6-py3-none-any.whl", hash = "sha256:cb96edd7016872f58479e35879294258c71437195760746faffedb692aef000b", size = 42548, upload-time = "2020-05-31T23:50:56.315Z" },
 ]
 
 [[package]]
@@ -2321,15 +2299,6 @@ wheels = [
 ]
 
 [[package]]
-name = "pyjwt"
-version = "2.8.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/30/72/8259b2bccfe4673330cea843ab23f86858a419d8f1493f66d413a76c7e3b/PyJWT-2.8.0.tar.gz", hash = "sha256:57e28d156e3d5c10088e0c68abb90bfac3df82b40a71bd0daa20c65ccd5c23de", size = 78313, upload-time = "2023-07-18T20:02:22.594Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/2b/4f/e04a8067c7c96c364cef7ef73906504e2f40d690811c021e1a1901473a19/PyJWT-2.8.0-py3-none-any.whl", hash = "sha256:59127c392cc44c2da5bb3192169a91f429924e17aff6534d70fdc02ab3e04320", size = 22591, upload-time = "2023-07-18T20:02:21.561Z" },
-]
-
-[[package]]
 name = "pymongo"
 version = "4.14.1"
 source = { registry = "https://pypi.org/simple" }
@@ -2444,15 +2413,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/88/2c/7bb1416c5620485aa793f2de31d3df393d3686aa8a8506d11e10e13c5baf/python_dotenv-1.1.0.tar.gz", hash = "sha256:41f90bc6f5f177fb41f53e87666db362025010eb28f60a01c9143bfa33a2b2d5", size = 39920, upload-time = "2025-03-25T10:14:56.835Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1e/18/98a99ad95133c6a6e2005fe89faedf294a748bd5dc803008059409ac9b1e/python_dotenv-1.1.0-py3-none-any.whl", hash = "sha256:d7c01d9e2293916c18baf562d95698754b0dbbb5e74d457c45d4f6561fb9d55d", size = 20256, upload-time = "2025-03-25T10:14:55.034Z" },
-]
-
-[[package]]
-name = "python-multipart"
-version = "0.0.20"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/f3/87/f44d7c9f274c7ee665a29b885ec97089ec5dc034c7f3fafa03da9e39a09e/python_multipart-0.0.20.tar.gz", hash = "sha256:8dd0cab45b8e23064ae09147625994d090fa46f5b0d1e13af944c331a7fa9d13", size = 37158, upload-time = "2024-12-16T19:45:46.972Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/45/58/38b5afbc1a800eeea951b9285d3912613f2603bdf897a4ab0f4bd7f405fc/python_multipart-0.0.20-py3-none-any.whl", hash = "sha256:8a62d3a8335e06589fe01f2a3e178cdcc632f3fbe0d492ad9ee0ec35aab1f104", size = 24546, upload-time = "2024-12-16T19:45:44.423Z" },
 ]
 
 [[package]]
@@ -3569,29 +3529,21 @@ dependencies = [
     { name = "datasets" },
     { name = "deep-translator" },
     { name = "discord-py" },
-    { name = "fake-useragent" },
     { name = "hf-xet" },
     { name = "huggingface-hub" },
-    { name = "jinja2" },
     { name = "markdown" },
     { name = "motor" },
     { name = "mutagen" },
     { name = "newspaper4k", extra = ["all"] },
-    { name = "ollama" },
     { name = "openai" },
     { name = "orjson" },
-    { name = "parsedatetime" },
-    { name = "pillow" },
     { name = "playwright" },
     { name = "python-dotenv" },
-    { name = "python-multipart" },
     { name = "qdrant-client" },
     { name = "redis", extra = ["hiredis"] },
-    { name = "requests" },
     { name = "selenium" },
     { name = "tenacity" },
     { name = "trafilatura" },
-    { name = "zai-sdk" },
 ]
 
 [package.metadata]
@@ -3609,45 +3561,21 @@ requires-dist = [
     { name = "datasets", specifier = ">=4.4.1" },
     { name = "deep-translator", specifier = "==1.11.4" },
     { name = "discord-py", specifier = ">=2.5.2" },
-    { name = "fake-useragent", specifier = "==2.1.0" },
     { name = "hf-xet", specifier = ">=1.2.0" },
     { name = "huggingface-hub", specifier = "==0.30.2" },
-    { name = "jinja2", specifier = "==3.1.6" },
     { name = "markdown", specifier = ">=3.9" },
     { name = "motor", specifier = ">=3.7.1" },
     { name = "mutagen", specifier = ">=1.47.0" },
     { name = "newspaper4k", extras = ["all"], specifier = ">=0.9.3.1" },
-    { name = "ollama", specifier = ">=0.5.3" },
     { name = "openai", specifier = ">=1.99.6" },
     { name = "orjson", specifier = "==3.10.18" },
-    { name = "parsedatetime", specifier = "==2.6" },
-    { name = "pillow", specifier = "==11.2.1" },
     { name = "playwright", specifier = ">=1.54.0" },
     { name = "python-dotenv", specifier = "==1.1.0" },
-    { name = "python-multipart", specifier = "==0.0.20" },
     { name = "qdrant-client", specifier = ">=1.15.1" },
     { name = "redis", extras = ["hiredis"], specifier = ">=6.4.0" },
-    { name = "requests", specifier = "==2.32.3" },
     { name = "selenium", specifier = ">=4.36.0" },
     { name = "tenacity", specifier = "==9.0.0" },
     { name = "trafilatura", specifier = ">=2.0.0" },
-    { name = "zai-sdk", specifier = ">=0.0.2" },
-]
-
-[[package]]
-name = "zai-sdk"
-version = "0.0.3.4"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "cachetools" },
-    { name = "httpx" },
-    { name = "pydantic" },
-    { name = "pydantic-core" },
-    { name = "pyjwt" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/c1/ef/eb110f8e7a7b81d4f188a0f2e420d09771b3347a65dc775e80e22db48051/zai_sdk-0.0.3.4.tar.gz", hash = "sha256:c116370bafe29481aebfc0deea454e9a009b21c88c17fb143fdcdf5f4857c303", size = 69962, upload-time = "2025-09-01T08:16:13.528Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/0b/8c/1715574027840468859e114fe2c4dc660ae1606f6215595ead802062365f/zai_sdk-0.0.3.4-py3-none-any.whl", hash = "sha256:646f4d1efa81f6d941c09665eb4515cc8db853c66db35ce5416e002e39a61d1b", size = 110506, upload-time = "2025-09-01T08:16:12.335Z" },
 ]
 
 [[package]]
