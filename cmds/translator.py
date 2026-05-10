@@ -18,7 +18,7 @@ class Translator(Cog_Extension):
             
             embed = create_basic_embed(description=translated, color=ctx.author.color)
             embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar.url)
-            embed.set_footer(text='Powered by qwen-3-235b-a22b-instruct-2507')
+            embed.set_footer(text='Powered by glm-4-flash')
 
             await ctx.send(embed=embed)
 
